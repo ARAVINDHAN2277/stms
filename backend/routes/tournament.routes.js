@@ -5,6 +5,7 @@ import authMiddleware from "../middleware/authMiddleware.js";
 import { runScheduler } from "../../../RoundRobinScheduler.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
+import transporter from '../utils/mailer.js';
 
 const router = express.Router();
 
@@ -112,25 +113,48 @@ router.post('/:id/schedule', async (req, res) => {
 
     // Optional: Save schedule to DB here if needed
     // await Tournament.findByIdAndUpdate(req.params.id, { schedule: optimizedSchedule });
+    const playerEmails = users.map(user => user.email);
 
-    res.json(scheduler);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-});
+// Prepare the mail options
+    const mailOptions = {
+      from: 'bennyhinn53@gmail.com',
+      to: playerEmails, // this can be an array, nodemailer handles it
+      subject: 'Your Tournament Schedule',
+      text: 'Dear player, please find attached your tournament schedule!',
+      attachments: [
+        {
+          filename: 'schedule.pdf',
+          path: './schedule.pdf', // path to your generated PDF
+        },
+      ],
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error sending email:', error);
+      } else {
+        console.log('Emails sent successfully:', info.response);
+      }
+    });
+        res.json(scheduler);
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    });
 
 
-function generateSchedulePDF(scheduleText, fileName = 'schedule.pdf') {
-  const doc = new PDFDocument();
+    function generateSchedulePDF(scheduleText, fileName = 'schedule.pdf') {
+      const doc = new PDFDocument();
 
-  const writeStream = fs.createWriteStream(fileName);
-  doc.pipe(writeStream);
+      const writeStream = fs.createWriteStream(fileName);
+      doc.pipe(writeStream);
 
-  doc.fontSize(12).text(scheduleText, {
-    width: 410,
-    align: 'left'
-  });
+      doc.fontSize(12).text(scheduleText, {
+        width: 410,
+        align: 'left'
+      });
 
   doc.end();
 
