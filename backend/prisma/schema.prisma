@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String                   @id @default(uuid())
+  username             String                   @unique
+  email                String                   @unique
+  password             String
+  role                 String                   // "player" or "organiser"
+  organizedTournaments Tournament[]             @relation("OrganisedBy")
+  registrations        TournamentRegistration[] 
+  player1Matches       Match[]                  @relation("Player1Matches")
+  player2Matches       Match[]                  @relation("Player2Matches")
+  wonMatches           Match[]                  @relation("WonMatches")
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+}
+
+model Tournament {
+  id                String                   @id @default(uuid())
+  tournamentName    String                   @unique
+  sportType         String                   
+  registrationFee   Float
+  lat               Float
+  lng               Float
+  locationName      String?
+  organiserId       String
+  organisedBy       User                     @relation("OrganisedBy", fields: [organiserId], references: [id])
+  registeredPlayers TournamentRegistration[] 
+  status            String                   @default("Open") // "Open", "Ongoing", "Completed", "Cancelled"
+  maxPlayers        Int?
+  matches           Match[]
+  announcements     Announcement[]
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
+}
+
+model TournamentRegistration {
+  id           String     @id @default(uuid())
+  playerId     String
+  tournamentId String
+  player       User       @relation(fields: [playerId], references: [id])
+  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  registeredAt DateTime   @default(now())
+
+  @@unique([playerId, tournamentId]) // Prevent duplicate registrations
+}
+
+model Announcement {
+  id           String     @id @default(uuid())
+  message      String
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+}
+
+model Match {
+  id           String     @id @default(uuid())
+  tournamentId String
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  
+  player1Id    String?
+  player1      User?      @relation("Player1Matches", fields: [player1Id], references: [id])
+  
+  player2Id    String?
+  player2      User?      @relation("Player2Matches", fields: [player2Id], references: [id])
+  
+  player1Score Int        @default(0)
+  player2Score Int        @default(0)
+  status       String     @default("Pending") // Pending, Ongoing, Completed
+  
+  round        Int        @default(1)
+  matchIndex   Int        @default(1) // position in the bracket round
+  
+  winnerId     String?
+  winner       User?      @relation("WonMatches", fields: [winnerId], references: [id])
+  
+  nextMatchId  String?
+  nextMatch    Match?     @relation("NextMatch", fields: [nextMatchId], references: [id])
+  previousMatches Match[] @relation("NextMatch")
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
