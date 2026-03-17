@@ -104,11 +104,61 @@ router.post("/register",authMiddleware, async (req, res) => {
 router.get('/organiser/:organiserId', async (req, res) => {
   try {
     const tournaments = await prisma.tournament.findMany({ where: { organiserId: req.params.organiserId } });
-    console.log(req.params.organiserId);
-    console.log(tournaments);
     res.json(tournaments);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// GET /api/tournaments/organiser-stats/overview
+router.get('/organiser-stats/overview', authMiddleware, async (req, res) => {
+  try {
+    const organiserId = req.user.id;
+
+    const tournaments = await prisma.tournament.findMany({
+      where: { organiserId },
+      include: {
+        registeredPlayers: true,
+        announcements: { take: 3, orderBy: { createdAt: 'desc' } }
+      }
+    });
+
+    let totalRevenue = 0;
+    let totalPlayers = 0;
+    const activeTournaments = tournaments.filter(t => t.status === 'Open' || t.status === 'Ongoing').length;
+    const completedTournaments = tournaments.filter(t => t.status === 'Completed').length;
+
+    tournaments.forEach(t => {
+      totalRevenue += (t.registrationFee * t.registeredPlayers.length);
+      totalPlayers += t.registeredPlayers.length;
+    });
+
+    // Get latest 5 registrations across all tournaments
+    const recentRegistrations = await prisma.tournamentRegistration.findMany({
+      where: {
+        tournament: { organiserId }
+      },
+      take: 5,
+      orderBy: { registeredAt: 'desc' },
+      include: {
+        player: { select: { username: true, email: true } },
+        tournament: { select: { tournamentName: true } }
+      }
+    });
+
+    res.json({
+      metrics: {
+        totalTournaments: tournaments.length,
+        totalPlayers,
+        totalRevenue,
+        activeTournaments,
+        completedTournaments
+      },
+      recentRegistrations,
+      tournaments: tournaments.slice(0, 4) // Send subset for quick view
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 });
 router.get('/nearby', async (req, res) => {
