@@ -26,10 +26,15 @@ const MatchBracket = ({ tournamentId, matches, fetchDashboardData }) => {
 
   const handleMatchClick = (match) => {
     if (match.status === 'Completed') return;
-    if (!match.player1Id || !match.player2Id) return; // Need both players to score
+    const isSquad = match.squad1Id || match.squad2Id;
+    if (isSquad) {
+        if (!match.squad1Id || !match.squad2Id) return;
+    } else {
+        if (!match.player1Id || !match.player2Id) return;
+    }
     setSelectedMatch(match);
-    setP1Score(match.player1Score);
-    setP2Score(match.player2Score);
+    setP1Score(match.player1Score || 0);
+    setP2Score(match.player2Score || 0);
   };
 
   const handleScoreUpdate = async (e) => {
@@ -37,13 +42,22 @@ const MatchBracket = ({ tournamentId, matches, fetchDashboardData }) => {
     try {
       const token = localStorage.getItem('token');
       let winnerId = null;
+      let winnerSquadId = null;
       let status = 'Completed';
       
-      if (Number(p1Score) > Number(p2Score)) winnerId = selectedMatch.player1Id;
-      else if (Number(p2Score) > Number(p1Score)) winnerId = selectedMatch.player2Id;
-      else status = 'Ongoing';
+      const isSquad = selectedMatch.squad1Id || selectedMatch.squad2Id;
 
-      if(status === 'Completed' && winnerId === null) {
+      if (Number(p1Score) > Number(p2Score)) {
+          if (isSquad) winnerSquadId = selectedMatch.squad1Id;
+          else winnerId = selectedMatch.player1Id;
+      } else if (Number(p2Score) > Number(p1Score)) {
+          if (isSquad) winnerSquadId = selectedMatch.squad2Id;
+          else winnerId = selectedMatch.player2Id;
+      } else {
+          status = 'Ongoing';
+      }
+
+      if(status === 'Completed' && winnerId === null && winnerSquadId === null) {
           alert("A match must have a clear winner (no draws)."); return;
       }
 
@@ -51,7 +65,8 @@ const MatchBracket = ({ tournamentId, matches, fetchDashboardData }) => {
         player1Score: Number(p1Score),
         player2Score: Number(p2Score),
         status,
-        winnerId
+        winnerId,
+        winnerSquadId
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -110,16 +125,15 @@ const MatchBracket = ({ tournamentId, matches, fetchDashboardData }) => {
                   title={match.status === 'Completed' ? "Finalized" : "Click to enter score"}
                >
                  {match.status === 'Completed' && <div className="absolute top-2 right-2 text-[8px] uppercase tracking-widest text-emerald-500 font-bold">FINAL</div>}
-                 
-                 <div className={`flex justify-between items-center mb-3 ${match.winnerId === match.player1Id ? 'text-emerald-400 font-bold' : 'text-gray-300'}`}>
-                   <span className="truncate pr-2 text-sm">{match.player1?.username || 'TBD'}</span>
-                   <span className="font-black bg-white/5 px-2 py-1 rounded-sm text-xs">{match.player1Score}</span>
-                 </div>
-                 
-                 <div className={`flex justify-between items-center ${match.winnerId === match.player2Id ? 'text-emerald-400 font-bold' : 'text-gray-300'}`}>
-                   <span className="truncate pr-2 text-sm">{match.player2?.username || (match.status === 'Completed' ? 'BYE' : 'TBD')}</span>
-                   <span className="font-black bg-white/5 px-2 py-1 rounded-sm text-xs">{match.player2Score}</span>
-                 </div>
+                                  <div className={`flex justify-between items-center mb-3 ${(match.winnerId === match.player1Id || match.winnerSquadId === match.squad1Id) && (match.winnerId || match.winnerSquadId) ? 'text-emerald-400 font-bold' : 'text-gray-300'}`}>
+                    <span className="truncate pr-2 text-sm">{match.squad1?.name || match.player1?.username || 'TBD'}</span>
+                    <span className="font-black bg-white/5 px-2 py-1 rounded-sm text-xs">{match.player1Score}</span>
+                  </div>
+                  
+                  <div className={`flex justify-between items-center ${(match.winnerId === match.player2Id || match.winnerSquadId === match.squad2Id) && (match.winnerId || match.winnerSquadId) ? 'text-emerald-400 font-bold' : 'text-gray-300'}`}>
+                    <span className="truncate pr-2 text-sm">{match.squad2?.name || match.player2?.username || (match.status === 'Completed' ? 'BYE' : 'TBD')}</span>
+                    <span className="font-black bg-white/5 px-2 py-1 rounded-sm text-xs">{match.player2Score}</span>
+                  </div>
                </div>
              ))}
            </div>
@@ -133,15 +147,15 @@ const MatchBracket = ({ tournamentId, matches, fetchDashboardData }) => {
              <h3 className="text-white font-black text-lg uppercase tracking-widest mb-6 border-b border-white/5 pb-4">Update Match Matrix</h3>
              
              <form onSubmit={handleScoreUpdate}>
-                <div className="flex justify-between items-center mb-6 bg-black/50 p-4 border border-white/5 rounded-sm">
-                  <span className="text-white font-bold truncate pr-4">{selectedMatch.player1?.username || 'TBD'}</span>
-                  <input type="number" min="0" value={p1Score} onChange={e => setP1Score(e.target.value)} className="w-20 bg-[#111116] border border-white/10 text-center text-xl font-black text-emerald-400 py-2 focus:outline-none rounded-sm" />
-                </div>
-                
-                <div className="flex justify-between items-center mb-8 bg-black/50 p-4 border border-white/5 rounded-sm">
-                  <span className="text-white font-bold truncate pr-4">{selectedMatch.player2?.username || 'TBD'}</span>
-                  <input type="number" min="0" value={p2Score} onChange={e => setP2Score(e.target.value)} className="w-20 bg-[#111116] border border-white/10 text-center text-xl font-black text-emerald-400 py-2 focus:outline-none rounded-sm" />
-                </div>
+                 <div className="flex justify-between items-center mb-6 bg-black/50 p-4 border border-white/5 rounded-sm">
+                   <span className="text-white font-bold truncate pr-4">{selectedMatch.squad1?.name || selectedMatch.player1?.username || 'TBD'}</span>
+                   <input type="number" min="0" value={p1Score} onChange={e => setP1Score(e.target.value)} className="w-20 bg-[#111116] border border-white/10 text-center text-xl font-black text-emerald-400 py-2 focus:outline-none rounded-sm" />
+                 </div>
+                 
+                 <div className="flex justify-between items-center mb-8 bg-black/50 p-4 border border-white/5 rounded-sm">
+                   <span className="text-white font-bold truncate pr-4">{selectedMatch.squad2?.name || selectedMatch.player2?.username || 'TBD'}</span>
+                   <input type="number" min="0" value={p2Score} onChange={e => setP2Score(e.target.value)} className="w-20 bg-[#111116] border border-white/10 text-center text-xl font-black text-emerald-400 py-2 focus:outline-none rounded-sm" />
+                 </div>
 
                 <div className="flex space-x-4">
                    <button type="button" onClick={() => setSelectedMatch(null)} className="flex-1 py-3 text-gray-400 font-bold tracking-widest uppercase text-xs border border-white/10 rounded-sm hover:bg-white/5 transition-colors">Abort</button>

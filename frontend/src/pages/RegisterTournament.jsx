@@ -31,14 +31,14 @@ const RegisterTournament = () => {
 
     // Backend handles the text-based location search if locationText is provided,
     // or frontend just sends the map lat/lng
-    navigate("/display-tournaments", {
+    navigate("/player/explore", {
       state: { sportType, locationText, location: selectedLocation }
     });
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-80px)] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full max-w-lg bg-[#111116] border border-white/5 rounded-sm shadow-2xl p-8 relative overflow-hidden">
+      <div className="w-full max-w-lg glass rounded-sm shadow-2xl p-8 relative overflow-hidden animate-slide-in">
         {/* Subtle accent glow */}
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-emerald-500"></div>
 

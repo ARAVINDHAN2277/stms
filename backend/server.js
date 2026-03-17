@@ -10,9 +10,17 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import tournamentRoutes from "./routes/tournament.routes.js";
+import squadRoutes from "./routes/squad.routes.js";
 
+
+import { createServer } from "http";
+import { initSocket } from "./utils/socketManager.js";
 
 const app = express();
+const httpServer = createServer(app);
+
+// Initialize Socket.io
+initSocket(httpServer);
 
 // Middleware
 app.use(express.json());
@@ -22,7 +30,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tournaments", tournamentRoutes);
+app.use('/api/squads', squadRoutes);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
- 
+httpServer.listen(PORT, () => console.log(`Server running on ${PORT} with WebSocket support`));

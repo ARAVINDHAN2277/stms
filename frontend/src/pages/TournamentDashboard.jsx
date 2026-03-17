@@ -5,6 +5,7 @@ import AuthContext from '../context/AuthContext';
 import { Settings, Users, Radio, LayoutDashboard, Trophy, Share2, ArrowLeft } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import MatchBracket from './MatchBracket';
+import { useSocket } from '../context/SocketContext';
 
 const TournamentDashboard = () => {
   const { id } = useParams();
@@ -24,9 +25,34 @@ const TournamentDashboard = () => {
     maxPlayers: ""
   });
 
+  const socket = useSocket();
+
   useEffect(() => {
     fetchDashboardData();
   }, [id]);
+
+  useEffect(() => {
+    if (socket && id) {
+      socket.emit('join_tournament', id);
+      console.log(`Joined tournament room: ${id}`);
+
+      socket.on('match_update', (updatedMatch) => {
+        console.log("Match update received:", updatedMatch);
+        // We could update state locally for better perf, but refetching is safer for consistent UI
+        fetchDashboardData();
+      });
+
+      socket.on('new_announcement', (announcement) => {
+        console.log("New announcement received:", announcement);
+        fetchDashboardData();
+      });
+
+      return () => {
+        socket.off('match_update');
+        socket.off('new_announcement');
+      };
+    }
+  }, [socket, id]);
 
   const fetchDashboardData = async () => {
     try {

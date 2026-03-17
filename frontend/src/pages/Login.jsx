@@ -13,8 +13,10 @@ const Login = () => {
     e.preventDefault();
     try {
       const response  = await axios.post("http://localhost:5000/api/auth/login", { email, password }, { withCredentials: true });
-      localStorage.setItem("token", response.data.token);
-      setUser(response.data.userData);
+      const { token, userData } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+      setUser(userData);
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }

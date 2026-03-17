@@ -18,6 +18,8 @@ model User {
   player1Matches       Match[]                  @relation("Player1Matches")
   player2Matches       Match[]                  @relation("Player2Matches")
   wonMatches           Match[]                  @relation("WonMatches")
+  squads               SquadMember[]
+  ledSquads            Squad[]                  @relation("SquadCaptain")
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
 }
@@ -34,11 +36,13 @@ model Tournament {
   organisedBy       User                     @relation("OrganisedBy", fields: [organiserId], references: [id])
   registeredPlayers TournamentRegistration[] 
   status            String                   @default("Open") // "Open", "Ongoing", "Completed", "Cancelled"
+  type              String                   @default("SOLO") // "SOLO", "SQUAD"
+  teamSize          Int                      @default(1)
   maxPlayers        Int?
   matches           Match[]
   announcements     Announcement[]
   createdAt         DateTime                 @default(now())
-  updatedAt         DateTime                 @updatedAt
+  updatedAt            DateTime                 @updatedAt
 }
 
 model TournamentRegistration {
@@ -47,6 +51,8 @@ model TournamentRegistration {
   tournamentId String
   player       User       @relation(fields: [playerId], references: [id])
   tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  squadId      String?
+  squad        Squad?     @relation(fields: [squadId], references: [id])
   registeredAt DateTime   @default(now())
 
   @@unique([playerId, tournamentId]) // Prevent duplicate registrations
@@ -81,10 +87,54 @@ model Match {
   winnerId     String?
   winner       User?      @relation("WonMatches", fields: [winnerId], references: [id])
   
+  squad1Id     String?
+  squad1       Squad?     @relation("Squad1Matches", fields: [squad1Id], references: [id])
+  squad2Id     String?
+  squad2       Squad?     @relation("Squad2Matches", fields: [squad2Id], references: [id])
+  winnerSquadId String?
+  winnerSquad  Squad?     @relation("WonSquadMatches", fields: [winnerSquadId], references: [id])
+
   nextMatchId  String?
   nextMatch    Match?     @relation("NextMatch", fields: [nextMatchId], references: [id])
   previousMatches Match[] @relation("NextMatch")
   
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+}
+
+model Squad {
+  id            String                   @id @default(uuid())
+  name          String                   @unique
+  logoUrl       String?
+  captainId     String
+  captain       User                     @relation("SquadCaptain", fields: [captainId], references: [id])
+  members       SquadMember[]
+  invites       SquadInvite[]
+  registrations TournamentRegistration[]
+  squad1Matches Match[]                  @relation("Squad1Matches")
+  squad2Matches Match[]                  @relation("Squad2Matches")
+  wonMatches    Match[]                  @relation("WonSquadMatches")
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+}
+
+model SquadMember {
+  id       String   @id @default(uuid())
+  userId   String
+  squadId  String
+  role     String   @default("MEMBER") // CAPTAIN, MEMBER
+  user     User     @relation(fields: [userId], references: [id])
+  squad    Squad    @relation(fields: [squadId], references: [id])
+  joinedAt DateTime @default(now())
+
+  @@unique([userId, squadId])
+}
+
+model SquadInvite {
+  id        String   @id @default(uuid())
+  squadId   String
+  squad     Squad    @relation(fields: [squadId], references: [id])
+  email     String
+  status    String   @default("PENDING") // PENDING, ACCEPTED, REJECTED
+  createdAt DateTime @default(now())
 }

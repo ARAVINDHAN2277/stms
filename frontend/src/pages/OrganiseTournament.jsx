@@ -10,6 +10,8 @@ const OrganiseTournament = () => {
   const [sportType, setSportType] = useState(locationState.sportType || "");
   const [registrationFee, setRegistrationFee] = useState(locationState.registrationFee || "");
   const [locationText, setLocationText] = useState(locationState.locationText || "");
+  const [type, setType] = useState("SOLO");
+  const [teamSize, setTeamSize] = useState(1);
   
   const selectedLocation = locationState.location || null;
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -44,6 +46,8 @@ const OrganiseTournament = () => {
           registrationFee,
           locationText,
           location: selectedLocation,
+          type,
+          teamSize: Number(teamSize),
         },
         {
           headers: {
@@ -113,6 +117,33 @@ const OrganiseTournament = () => {
               onChange={(e) => setRegistrationFee(e.target.value)}
               placeholder="e.g. 50"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-gray-400 font-medium text-xs tracking-wider uppercase mb-2">Tournament Mode</label>
+              <select
+                className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-sm focus:outline-none focus:border-purple-500 text-white appearance-none cursor-pointer"
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+              >
+                <option value="SOLO">Solo (1v1)</option>
+                <option value="SQUAD">Squad (Team)</option>
+              </select>
+            </div>
+            {type === 'SQUAD' && (
+              <div>
+                <label className="block text-gray-400 font-medium text-xs tracking-wider uppercase mb-2">Team Size</label>
+                <input
+                  type="number"
+                  min="2"
+                  max="11"
+                  className="w-full px-4 py-3 bg-black/50 border border-white/10 rounded-sm focus:outline-none focus:border-purple-500 text-white"
+                  value={teamSize}
+                  onChange={(e) => setTeamSize(e.target.value)}
+                />
+              </div>
+            )}
           </div>
 
           <div className="pt-2">
