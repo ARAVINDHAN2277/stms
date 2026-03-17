@@ -5,11 +5,11 @@ const LiveTicker = () => {
     "● Live Tournament: Neo-Tokyo Invitational",
     "● 1,240 Players Online",
     "● Match Scheduled: Squad Alpha vs Team Bravo",
-    "● Grid Maintenance Complete",
+    "● System Update Complete",
     "● Prize Pool Updated: $50,000",
     "● New Squad Formed: Velocity Syndicate",
-    "● Tournament Registration Peak: 400 registrations/min",
-    "● Latency: 12ms (Global Edge)",
+    "● Peak Registration Activity",
+    "● Global Server Operational",
   ];
 
   return (

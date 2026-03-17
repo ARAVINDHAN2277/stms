@@ -30,10 +30,10 @@ const Home = () => {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-6 lg:px-8 text-center animate-slide-in">
-          {/* Tactical Badge */}
+          {/* Live Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-8 backdrop-blur-sm">
              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">System Status: Optimal</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Tournament Status: Live</span>
           </div>
 
           <h1 className="text-6xl sm:text-8xl lg:text-9xl font-black tracking-tighter uppercase mb-8 leading-[0.85] italic">
@@ -41,13 +41,13 @@ const Home = () => {
               Rule The
             </span>
             <span className="block text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-indigo-400 to-blue-500 mt-2 filter drop-shadow-[0_0_30px_rgba(168,85,247,0.3)]">
-              Grid
+              Arena
             </span>
           </h1>
 
           <p className="mt-8 text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto font-medium leading-relaxed">
-            The ultimate command center for elite organizers and hardcore competitors. 
-            Experience <span className="text-white font-bold">real-time match telemetry</span>, <span className="text-white font-bold">automated brackets</span>, and <span className="text-white font-bold">global scale</span>.
+            The ultimate dashboard for sports organizers and competitive players. 
+            Experience <span className="text-white font-bold">real-time match statistics</span>, <span className="text-white font-bold">automated brackets</span>, and <span className="text-white font-bold">global scale</span>.
           </p>
 
           <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6">
@@ -57,20 +57,20 @@ const Home = () => {
             >
               <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 transition-transform group-hover:scale-105" />
               <div className="relative px-10 py-5 flex items-center justify-center gap-3 text-white font-black uppercase tracking-widest text-xs border border-white/10">
-                Authorize Deployment <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                Sign In To Compete <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
             <a 
               href="#features" 
               className="w-full sm:w-auto px-10 py-5 border border-white/10 text-white font-black uppercase tracking-widest text-xs hover:bg-white/5 transition-all rounded-sm backdrop-blur-sm"
             >
-              Examine Features
+              View Features
             </a>
           </div>
 
           {/* Mini Bracket Preview Integration */}
           <div className="mt-20 max-w-lg mx-auto transform hover:scale-[1.02] transition-transform cursor-pointer">
-             <div className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-4">Simulation: Live Grid Advancement</div>
+             <div className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-500 mb-4">Live Tournament Preview</div>
              <MiniBracketPreview />
           </div>
         </div>
@@ -92,16 +92,16 @@ const Home = () => {
             <div className="md:col-span-6 lg:col-span-8 glass p-10 rounded-sm relative group overflow-hidden border-purple-500/20">
                <div className="absolute top-0 left-0 w-1 h-full bg-purple-500 opacity-50 transition-all group-hover:w-full group-hover:opacity-5"></div>
                <Zap className="w-10 h-10 text-purple-500 mb-8" />
-               <h4 className="text-2xl font-black uppercase tracking-tight text-white mb-4">Neural Bracket Matrix</h4>
+               <h4 className="text-2xl font-black uppercase tracking-tight text-white mb-4">Tournament Bracket Engine</h4>
                <p className="text-gray-400 leading-relaxed max-w-md">
-                 Our proprietary single-elimination engine generates dynamic brackets instantly. Track progression with millisecond accuracy as players advance through the grid.
+                 Our advanced single-elimination engine generates dynamic brackets instantly. Track progression live as players advance through the tournament.
                </p>
             </div>
 
             {/* Medium Feature: Live Scoring */}
             <div className="md:col-span-6 lg:col-span-4 glass p-10 rounded-sm relative group overflow-hidden border-blue-500/20">
                <Activity className="w-10 h-10 text-blue-500 mb-8" />
-               <h4 className="text-xl font-black uppercase tracking-tight text-white mb-4">Match Telemetry</h4>
+               <h4 className="text-xl font-black uppercase tracking-tight text-white mb-4">Match Statistics</h4>
                <p className="text-gray-400 text-sm leading-relaxed">
                  Real-time score synching via Socket.io. One update from the organiser mirrors instantly to every connected dashboard.
                </p>

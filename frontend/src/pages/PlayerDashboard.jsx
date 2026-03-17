@@ -54,8 +54,8 @@ const PlayerDashboard = () => {
     <div className="min-h-screen bg-[#0a0a0c] flex flex-col items-center justify-center p-6 text-center">
       <Zap className="w-16 h-16 text-gray-700 mb-6 opacity-30" />
       <h2 className="text-white font-black uppercase tracking-widest text-xl mb-4">Connection Failed</h2>
-      <p className="text-gray-500 max-w-sm mx-auto text-sm mb-8">We couldn't synchronize with the grid satellites. Please check your uplink.</p>
-      <button onClick={() => window.location.reload()} className="px-8 py-3 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all">Retry Uplink</button>
+      <p className="text-gray-500 max-w-sm mx-auto text-sm mb-8">We couldn't synchronize with the game servers. Please check your connection.</p>
+      <button onClick={() => window.location.reload()} className="px-8 py-3 bg-white/5 border border-white/10 text-white font-black uppercase tracking-widest text-[10px] hover:bg-blue-600 transition-all">Retry Connection</button>
     </div>
   );
 
@@ -73,7 +73,7 @@ const PlayerDashboard = () => {
               </div>
               <div>
                 <h3 className="text-white font-black uppercase tracking-tighter italic text-xl">Active</h3>
-                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Operator Status</p>
+                <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest">Player Status</p>
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@ const PlayerDashboard = () => {
 
           <div className="glass p-6 rounded-sm flex items-center justify-between hover:border-purple-500/30 transition-all group">
             <div>
-              <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">Deployments</p>
+              <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">Tournaments</p>
               <h4 className="text-white text-3xl font-black italic">{stats?.registrationCount || 0}</h4>
             </div>
             <Target className="text-gray-700 group-hover:text-purple-500 transition-colors w-8 h-8" />
@@ -110,7 +110,7 @@ const PlayerDashboard = () => {
             <div className="glass rounded-sm p-8 shadow-2xl">
               <div className="flex justify-between items-center mb-8 border-b border-white/5 pb-6">
                 <h2 className="text-white font-black uppercase tracking-widest text-lg flex items-center gap-3">
-                  <Activity className="w-5 h-5 text-blue-500" /> Active Deployments
+                  <Activity className="w-5 h-5 text-blue-500" /> Active Tournaments
                 </h2>
                 <button onClick={() => navigate('/player/explore')} className="text-blue-500 text-[10px] font-black uppercase tracking-widest hover:underline flex items-center gap-1">
                   Find New <ChevronRight className="w-3 h-3" />
@@ -120,7 +120,7 @@ const PlayerDashboard = () => {
               {stats.activeRegistrations?.length === 0 ? (
                 <div className="py-20 text-center">
                   <Zap className="w-12 h-12 text-gray-700 mx-auto mb-4 opacity-30" />
-                  <p className="text-gray-500 uppercase font-bold text-xs tracking-widest">No active deployments detected.</p>
+                  <p className="text-gray-500 uppercase font-bold text-xs tracking-widest">No active tournaments detected.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -165,7 +165,7 @@ const PlayerDashboard = () => {
             <div className="glass rounded-sm p-8 shadow-2xl relative overflow-hidden">
                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-3xl rounded-full"></div>
                <h2 className="text-white font-black uppercase tracking-widest text-lg flex items-center gap-3 mb-8">
-                  <Calendar className="w-5 h-5 text-purple-500" /> Incoming Intel
+                  <Calendar className="w-5 h-5 text-purple-500" /> Upcoming Matches
                </h2>
 
                {stats.upcomingMatches?.length === 0 ? (
@@ -194,10 +194,10 @@ const PlayerDashboard = () => {
 
             <div className="bg-blue-600/10 border border-blue-500/20 p-6 rounded-sm">
                <h4 className="text-blue-400 font-black uppercase tracking-widest text-[11px] mb-2 flex items-center gap-2">
-                  <Zap className="w-4 h-4" /> Tactical Tip
+                  <Zap className="w-4 h-4" /> Pro Tip
                </h4>
                <p className="text-gray-400 text-xs leading-relaxed">
-                  Always ensure your squad is synchronized before entering the Grid. Communication is the difference between victory and deletion.
+                  Always ensure your squad is synchronized before entering the tournament. Communication is the difference between victory and defeat.
                </p>
             </div>
 

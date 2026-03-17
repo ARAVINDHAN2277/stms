@@ -65,10 +65,10 @@ const OrganiserDashboard = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Organiser Uplink: Active</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">Organiser Dashboard: Active</span>
             </div>
             <h1 className="text-4xl lg:text-5xl font-black uppercase tracking-tighter italic">
-              Command <span className="text-purple-500">Center</span>
+              Dashboard <span className="text-purple-500">Hub</span>
             </h1>
           </div>
           
@@ -77,7 +77,7 @@ const OrganiserDashboard = () => {
               onClick={() => navigate("/organise-tournament")}
               className="flex-1 md:flex-none px-6 py-4 bg-purple-600 hover:bg-purple-500 text-white font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:shadow-[0_0_30px_rgba(168,85,247,0.5)]"
             >
-              <PlusCircle className="w-4 h-4" /> Commence Deployment
+              <PlusCircle className="w-4 h-4" /> Create Tournament
             </button>
           </div>
         </div>
@@ -88,7 +88,7 @@ const OrganiserDashboard = () => {
             <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <DollarSign className="w-12 h-12 text-purple-500" />
             </div>
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Yield</p>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Earnings</p>
             <h3 className="text-3xl font-black text-emerald-400">${metrics.totalRevenue}</h3>
           </div>
           
@@ -96,7 +96,7 @@ const OrganiserDashboard = () => {
              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <Users className="w-12 h-12 text-blue-500" />
             </div>
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Operators</p>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Total Players</p>
             <h3 className="text-3xl font-black text-white">{metrics.totalPlayers}</h3>
           </div>
 
@@ -104,7 +104,7 @@ const OrganiserDashboard = () => {
              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
               <Activity className="w-12 h-12 text-emerald-500" />
             </div>
-            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Active Grids</p>
+            <p className="text-gray-500 text-[10px] font-black uppercase tracking-widest mb-1">Active Events</p>
             <h3 className="text-3xl font-black text-white">{metrics.activeTournaments}</h3>
           </div>
 
@@ -133,12 +133,12 @@ const OrganiserDashboard = () => {
             {tournaments.length === 0 ? (
               <div className="glass p-12 text-center rounded-sm border-dashed border-white/5">
                 <LayoutGrid className="w-12 h-12 text-gray-800 mx-auto mb-4 opacity-50" />
-                <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">No active operations detected in the sector.</p>
+                <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">No active tournaments detected in this area.</p>
                 <button 
                   onClick={() => navigate("/organise-tournament")}
                   className="mt-6 px-6 py-3 bg-white/5 border border-white/10 text-white font-bold uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all"
                 >
-                  Initiate First Sequence
+                  Create Your First Tournament
                 </button>
               </div>
             ) : (
@@ -198,7 +198,7 @@ const OrganiserDashboard = () => {
                         <div className="w-1 h-8 bg-emerald-500/30 rounded-full mt-1" />
                         <div>
                           <p className="text-[11px] font-bold text-white uppercase tracking-tight">
-                            Operator <span className="text-emerald-400">{reg.player.username}</span> Joined
+                            Player <span className="text-emerald-400">{reg.player.username}</span> Joined
                           </p>
                           <p className="text-[9px] text-gray-500 font-medium uppercase tracking-widest mt-0.5 truncate max-w-[180px]">
                             {reg.tournament.tournamentName}
@@ -212,14 +212,14 @@ const OrganiserDashboard = () => {
 
              {/* Quick Actions Footer Card */}
              <div className="bg-gradient-to-br from-purple-900/10 to-transparent border border-purple-500/10 p-6 rounded-sm">
-                <p className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-3">System Utilities</p>
+                <p className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-3">Dashboard Tools</p>
                 <div className="space-y-2">
                   <button className="w-full py-3 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-left px-4 flex justify-between items-center group">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Global Broadcast</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Send Announcement</span>
                     <RadioIcon className="w-4 h-4 text-gray-600 group-hover:text-blue-400" />
                   </button>
                   <button onClick={() => navigate("/organiser/tournaments")} className="w-full py-3 bg-white/5 border border-white/5 hover:bg-white/10 transition-all text-left px-4 flex justify-between items-center group">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Operational History</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-300">Tournament History</span>
                     <Clock className="w-4 h-4 text-gray-600 group-hover:text-purple-400" />
                   </button>
                 </div>

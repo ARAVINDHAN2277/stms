@@ -65,6 +65,35 @@
     animation: pulse-glow 4s ease-in-out infinite;
   }
 
+  .glass-input {
+    @apply bg-black/40 border border-white/10 rounded-[2px] backdrop-blur-md transition-all duration-300;
+  }
+
+  .glass-input:focus {
+    @apply border-purple-500/50 ring-1 ring-purple-500/30 bg-purple-500/5;
+  }
+
+  .tactical-btn {
+    @apply relative overflow-hidden font-black uppercase tracking-[0.2em] py-4 rounded-[2px] transition-all duration-300 transform active:scale-95;
+  }
+
+  .glitch-text {
+    position: relative;
+    text-shadow: 0.05em 0 0 rgba(255, 0, 0, 0.75),
+      -0.025em -0.05em 0 rgba(0, 255, 0, 0.75),
+      0.025em 0.05em 0 rgba(0, 0, 255, 0.75);
+    animation: glitch 500ms infinite;
+  }
+
+  @keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+  }
+
   @keyframes slideIn {
     from { opacity: 0; transform: translateY(30px); }
     to { opacity: 1; transform: translateY(0); }
