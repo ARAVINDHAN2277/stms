@@ -21,7 +21,7 @@ export const login = async (req, res) => {
     
     const user = await authService.loginUser({ email, password });
     
-    const roleLower = user.role.toLowerCase();
+    const roleLower = user.role;
     
     const token = jwt.sign({ id: user.id, role: roleLower }, process.env.JWT_SECRET, { expiresIn: "1d" });
     

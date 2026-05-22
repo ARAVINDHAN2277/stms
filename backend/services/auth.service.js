@@ -9,7 +9,7 @@ export const registerUser = async ({ username, email, password, role }) => {
       username,
       email,
       password: hashedPassword,
-      role: role.toUpperCase() // Ensure role maps to Prisma enum PLAYER/ORGANISER
+      role: role
     }
   });
 
