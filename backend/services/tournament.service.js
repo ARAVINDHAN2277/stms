@@ -27,8 +27,18 @@ export const getNearbyTournaments = async ({ lat, lng, sport }) => {
   const radiusInKm = 50;
   const earthRadius = 6371;
 
+  const kmInLat = 111;
+  const kmInLng = 111 * Math.cos(lat * Math.PI / 180);
+
+  const latDelta = radiusInKm / kmInLat;
+  const lngDelta = radiusInKm / kmInLng;
+
   const tournaments = await prisma.tournament.findMany({
-    where: { sportType: sport }
+    where: { 
+      sportType: sport,
+      latitude: { gte: lat - latDelta, lte: lat + latDelta },
+      longitude: { gte: lng - lngDelta, lte: lng + lngDelta }
+    }
   });
 
   const nearby = tournaments.filter(t => {
@@ -91,7 +101,8 @@ export const generateSchedule = async (tournamentId) => {
   }
 
   const schedulerText = runScheduler(playerNames);
-  generateSchedulePDF(schedulerText);
+  const uniquePdfName = `schedule-${tournamentId}-${Date.now()}.pdf`;
+  generateSchedulePDF(schedulerText, uniquePdfName);
 
   return schedulerText;
 };
