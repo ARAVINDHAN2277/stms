@@ -477,10 +477,10 @@ class Location {
     return scheduleText
   }
   
-  module.exports = {
-    Location,
-    Match,
-    RoundRobinScheduler,
-    verifySchedule,
-    runScheduler
-  };
+export {
+  Location,
+  Match,
+  RoundRobinScheduler,
+  verifySchedule,
+  runScheduler
+};
