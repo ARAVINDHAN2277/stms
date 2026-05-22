@@ -42,7 +42,7 @@ model Tournament {
   latitude        Float
   longitude       Float
   organiserId     String
-  organiser       User           @relation("OrganisedTournaments", fields: [organiserId], references: [id])
+  organiser       User           @relation("OrganisedTournaments", fields: [organiserId], references: [id], onDelete: Cascade)
   registrations   Registration[]
   matches         Match[]
   createdAt       DateTime       @default(now())
@@ -53,8 +53,8 @@ model Registration {
   id           String     @id @default(uuid())
   userId       String
   tournamentId String
-  user         User       @relation(fields: [userId], references: [id])
-  tournament   Tournament @relation(fields: [tournamentId], references: [id])
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   createdAt    DateTime   @default(now())
 
   @@unique([userId, tournamentId])
@@ -63,15 +63,15 @@ model Registration {
 model Match {
   id             String     @id @default(uuid())
   tournamentId   String
-  tournament     Tournament @relation(fields: [tournamentId], references: [id])
+  tournament     Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
   homeTeamId     String
-  homeTeam       User       @relation("HomeMatches", fields: [homeTeamId], references: [id])
+  homeTeam       User       @relation("HomeMatches", fields: [homeTeamId], references: [id], onDelete: Cascade)
   awayTeamId     String
-  awayTeam       User       @relation("AwayMatches", fields: [awayTeamId], references: [id])
+  awayTeam       User       @relation("AwayMatches", fields: [awayTeamId], references: [id], onDelete: Cascade)
   homeTeamScore  Int?
   awayTeamScore  Int?
   winnerId       String?
-  winner         User?      @relation("WonMatches", fields: [winnerId], references: [id])
+  winner         User?      @relation("WonMatches", fields: [winnerId], references: [id], onDelete: SetNull)
   round          Int
   matchDate      DateTime?
   venue          String?
