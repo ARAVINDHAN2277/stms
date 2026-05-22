@@ -4,6 +4,11 @@ import jwt from 'jsonwebtoken';
 export const signup = async (req, res) => {
   try {
     const { username, email, password, role } = req.body;
+    
+    if (!username || !email || !password || !role) {
+      return res.status(400).json({ message: "Missing required fields: username, email, password, role" });
+    }
+    
     if (!["player", "organiser"].includes(role)) {
       return res.status(400).json("Invalid role");
     }
@@ -18,6 +23,10 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    if (!email || !password) {
+      return res.status(400).json({ message: "Missing required fields: email, password" });
+    }
     
     const user = await authService.loginUser({ email, password });
     

@@ -5,6 +5,14 @@ export const registerTournament = async (req, res) => {
     const { tournamentName, sportType, registrationFee, location } = req.body;
     const userId = req.user.id;
 
+    if (!tournamentName || !sportType || registrationFee === undefined || !location || !location.lat || !location.lng) {
+      return res.status(400).json({ message: "Missing required fields: tournamentName, sportType, registrationFee, location.lat, location.lng" });
+    }
+    
+    if (isNaN(parseFloat(registrationFee)) || isNaN(parseFloat(location.lat)) || isNaN(parseFloat(location.lng))) {
+      return res.status(400).json({ message: "Invalid numeric fields provided" });
+    }
+
     const newTournament = await tournamentService.createTournament({
       tournamentName,
       sportType,
@@ -46,6 +54,13 @@ export const getOrganiserTournaments = async (req, res) => {
 export const getNearbyTournaments = async (req, res) => {
   try {
     const { lat, lng, sport } = req.query;
+
+    if (!lat || !lng || !sport) {
+      return res.status(400).json({ message: "Missing required query parameters: lat, lng, sport" });
+    }
+    if (isNaN(parseFloat(lat)) || isNaN(parseFloat(lng))) {
+      return res.status(400).json({ message: "Invalid latitude or longitude" });
+    }
     
     const nearby = await tournamentService.getNearbyTournaments({ 
       lat: parseFloat(lat), 
