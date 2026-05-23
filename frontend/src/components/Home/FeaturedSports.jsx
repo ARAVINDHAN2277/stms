@@ -1,39 +1,66 @@
 import { motion } from 'framer-motion';
 
-const SportCard = ({ sport, delay }) => {
+const SportCard = ({ sport, delay, index }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      whileInView={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, x: 30 }}
+      whileInView={{ opacity: 1, x: 0 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, delay }}
-      whileHover={{ y: -10 }}
-      className="glassmorphism rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer group relative overflow-hidden"
+      transition={{ duration: 0.6, delay }}
+      className="group relative flex-1 hover:flex-[4] h-[120px] lg:h-[500px] rounded-3xl overflow-hidden cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.25,1,0.5,1)] warm-shadow border-2 border-transparent hover:border-primary/30"
     >
-      <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
+        style={{ backgroundImage: `url(${sport.image})` }}
+      />
       
-      <div className="w-20 h-20 mb-4 rounded-full bg-dark-surface border border-white/5 flex items-center justify-center text-4xl group-hover:scale-110 group-hover:border-primary/50 transition-all duration-300 shadow-[0_0_15px_rgba(0,0,0,0.5)] group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] z-10">
-        {sport.emoji}
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/20 to-transparent opacity-70 group-hover:opacity-90 transition-opacity duration-700" />
+      
+      {/* Content */}
+      <div className="absolute inset-0 p-4 lg:p-6 flex flex-col justify-end">
+        <div className="flex items-center gap-4">
+          {/* Number Badge */}
+          <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center text-white font-heading font-bold shrink-0 border border-white/20 group-hover:bg-primary group-hover:border-primary transition-colors duration-500">
+            0{index + 1}
+          </div>
+          
+          {/* Title */}
+          <div className="overflow-hidden">
+            <h3 className="text-xl lg:text-3xl font-heading font-bold text-white tracking-wide uppercase drop-shadow-lg whitespace-nowrap transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+              {sport.name}
+            </h3>
+          </div>
+        </div>
+        
+        {/* Expandable CTA using Grid trick */}
+        <div className="grid grid-rows-[0fr] lg:group-hover:grid-rows-[1fr] transition-all duration-500 ease-in-out ml-14 lg:ml-16">
+          <div className="overflow-hidden">
+            <div className="pt-2 opacity-0 lg:group-hover:opacity-100 transition-opacity duration-500 delay-100">
+              <span className="inline-flex items-center text-sm font-bold text-primary hover:text-white transition-colors">
+                Explore Tournaments &rarr;
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <h3 className="text-xl font-heading font-bold text-white z-10 tracking-wide uppercase">{sport.name}</h3>
-      <p className="text-sm text-primary mt-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 font-medium">Explore Tournaments &rarr;</p>
     </motion.div>
   );
 };
 
 const FeaturedSports = () => {
   const sports = [
-    { name: "Football", emoji: "⚽" },
-    { name: "Cricket", emoji: "🏏" },
-    { name: "Basketball", emoji: "🏀" },
-    { name: "Tennis", emoji: "🎾" },
-    { name: "Volleyball", emoji: "🏐" },
-    { name: "Kho Kho", emoji: "🏃‍♂️" }
+    { name: "Football", image: "/images/sports/football.png" },
+    { name: "Cricket", image: "/images/sports/cricket.png" },
+    { name: "Basketball", image: "/images/sports/basketball.png" },
+    { name: "Tennis", image: "/images/sports/tennis.png" },
+    { name: "Volleyball", image: "/images/sports/volleyball.png" },
+    { name: "Kho Kho", image: "/images/sports/khokho.png" }
   ];
 
   return (
-    <section className="py-24 relative z-10 bg-dark-surface/50 border-y border-white/5">
+    <section className="py-24 relative z-10 bg-warm-bg border-y border-warm-border overflow-hidden">
       <div className="container mx-auto px-6">
         <div className="flex flex-col md:flex-row justify-between items-end mb-12">
           <div className="max-w-2xl">
@@ -41,7 +68,7 @@ const FeaturedSports = () => {
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="text-3xl md:text-5xl font-heading font-bold text-white mb-4 uppercase tracking-tight"
+              className="text-3xl md:text-5xl font-heading font-bold text-navy-dark mb-4 uppercase tracking-tight"
             >
               Featured <span className="text-primary">Disciplines</span>
             </motion.h2>
@@ -50,7 +77,7 @@ const FeaturedSports = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="text-gray-400 text-lg"
+              className="text-text-muted text-lg"
             >
               Compete in your favorite sports. We support a wide variety of formats and scoring rules.
             </motion.p>
@@ -59,16 +86,18 @@ const FeaturedSports = () => {
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="mt-6 md:mt-0 px-6 py-3 rounded-full border border-gray-600 hover:border-primary text-white font-medium hover:text-primary transition-all text-sm"
+            className="mt-6 md:mt-0 px-8 py-4 rounded-full border-2 border-warm-border hover:border-primary text-navy-dark font-bold hover:text-primary transition-all text-sm shadow-sm hover:warm-shadow bg-white"
           >
             View All Sports
           </motion.button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+        {/* Expanding Accordion Container */}
+        <div className="flex flex-col lg:flex-row w-full gap-4">
           {sports.map((sport, index) => (
             <SportCard 
               key={index}
+              index={index}
               sport={sport}
               delay={index * 0.1}
             />

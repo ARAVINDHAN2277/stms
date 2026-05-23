@@ -3,10 +3,9 @@ import Hero from "../components/Home/Hero.jsx";
 import LiveStats from "../components/Home/LiveStats.jsx";
 import HowItWorks from "../components/Home/HowItWorks.jsx";
 import FeaturedSports from "../components/Home/FeaturedSports.jsx";
-import NearbyTournaments from "../components/Home/NearbyTournaments.jsx";
-import InteractiveMap from "../components/Home/InteractiveMap.jsx";
 import OrganiserPromo from "../components/Home/OrganiserPromo.jsx";
 import Testimonials from "../components/Home/Testimonials.jsx";
+import CTASection from "../components/Home/CTASection.jsx";
 import Footer from "../components/Home/Footer.jsx";
 import { useEffect } from "react";
 
@@ -16,7 +15,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white selection:bg-primary/30 selection:text-white">
+    <div className="min-h-screen bg-warm-bg text-text-main selection:bg-primary/30 selection:text-navy-dark">
       <Navbar />
       
       <main>
@@ -24,10 +23,9 @@ const Home = () => {
         <LiveStats />
         <HowItWorks />
         <FeaturedSports />
-        <NearbyTournaments />
-        <InteractiveMap />
         <OrganiserPromo />
         <Testimonials />
+        <CTASection />
       </main>
 
       <Footer />

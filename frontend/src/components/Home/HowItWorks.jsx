@@ -1,29 +1,34 @@
 import { motion } from 'framer-motion';
 import { MapPin, Zap, Settings, CalendarClock, Target, Compass } from 'lucide-react';
 
-const FeatureCard = ({ title, description, features, delay }) => {
+const FeatureCard = ({ title, description, features, delay, watermark: WatermarkIcon }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, delay }}
-      className="glassmorphism p-8 rounded-2xl flex flex-col h-full glow-border hover:-translate-y-2 transition-transform duration-300"
+      className="bg-white p-8 rounded-2xl flex flex-col h-full warm-shadow hover:warm-shadow-hover transition-all duration-300 relative overflow-hidden group border border-warm-border"
     >
-      <h3 className="text-2xl font-heading font-bold text-white mb-4 border-b border-white/10 pb-4">
+      {/* Background Watermark Icon */}
+      <div className="absolute -bottom-10 -right-10 text-primary/5 group-hover:text-primary/10 transition-colors duration-500 z-0 pointer-events-none">
+        <WatermarkIcon size={200} strokeWidth={1} />
+      </div>
+
+      <h3 className="text-2xl font-heading font-bold text-navy-dark mb-4 border-b border-warm-border pb-4 relative z-10">
         {title}
       </h3>
-      <p className="text-gray-400 mb-8 flex-grow">
+      <p className="text-text-muted mb-8 flex-grow relative z-10">
         {description}
       </p>
       
-      <ul className="space-y-4">
+      <ul className="space-y-4 relative z-10">
         {features.map((feature, idx) => (
           <li key={idx} className="flex items-start gap-3">
             <div className="mt-1 text-primary bg-primary/10 p-1.5 rounded-lg">
               <feature.icon size={18} />
             </div>
-            <span className="text-gray-300 font-medium">{feature.text}</span>
+            <span className="text-navy-surface font-medium">{feature.text}</span>
           </li>
         ))}
       </ul>
@@ -36,6 +41,7 @@ const HowItWorks = () => {
     {
       title: "For Players",
       description: "Find your next challenge easily. Our platform connects you with local tournaments in seconds.",
+      watermark: Target,
       features: [
         { icon: Compass, text: "Discover nearby tournaments using GPS" },
         { icon: Zap, text: "Register instantly with one click" },
@@ -45,6 +51,7 @@ const HowItWorks = () => {
     {
       title: "For Organisers",
       description: "Focus on the game, not the paperwork. We automate the entire tournament lifecycle.",
+      watermark: CalendarClock,
       features: [
         { icon: Settings, text: "Create and manage tournaments effortlessly" },
         { icon: CalendarClock, text: "Auto-generate schedules with simulated annealing" },
@@ -54,6 +61,7 @@ const HowItWorks = () => {
     {
       title: "Platform Features",
       description: "Built with cutting-edge tech to deliver a seamless, high-performance experience.",
+      watermark: Zap,
       features: [
         { icon: MapPin, text: "Precision GPS-based discovery" },
         { icon: Zap, text: "Smart algorithmic match scheduling" },
@@ -63,14 +71,14 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section className="py-24 relative z-10 bg-dark-bg">
+    <section className="py-24 relative z-10 bg-warm-surface">
       <div className="container mx-auto px-6">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.h2 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-4xl md:text-5xl font-heading font-bold text-white mb-4"
+            className="text-4xl md:text-5xl font-heading font-bold text-navy-dark mb-4"
           >
             How It <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Works</span>
           </motion.h2>
@@ -79,9 +87,9 @@ const HowItWorks = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.1 }}
-            className="text-gray-400 text-lg"
+            className="text-text-muted text-lg"
           >
-            Whether you're looking to compete or host the next big event, STMS provides the ultimate toolset.
+            Whether you're looking to compete or host the next big event, TourneyGrid provides the ultimate toolset.
           </motion.p>
         </div>
 
@@ -92,6 +100,7 @@ const HowItWorks = () => {
               title={card.title}
               description={card.description}
               features={card.features}
+              watermark={card.watermark}
               delay={index * 0.2}
             />
           ))}

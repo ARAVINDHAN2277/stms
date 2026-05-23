@@ -28,12 +28,12 @@ const Navbar = () => {
     <motion.nav 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'glassmorphism py-3' : 'bg-transparent py-5'}`}
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'glass-dark py-3' : 'bg-transparent py-5'}`}
     >
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
-        <Link to="/" className="flex items-center gap-2 group">
-          <Trophy className="text-primary group-hover:text-secondary transition-colors" size={28} />
-          <span className="text-2xl font-heading font-bold tracking-wider text-white">STMS</span>
+        <Link to="/" className="flex items-center gap-3 group">
+          <img src="/images/logo.png" alt="TourneyGrid Logo" className="h-8 w-8 object-contain group-hover:scale-110 transition-transform" />
+          <span className="text-2xl font-heading font-bold tracking-wider text-white">TourneyGrid</span>
         </Link>
 
         {/* Desktop Menu */}
@@ -63,7 +63,7 @@ const Navbar = () => {
                 <Link to="/login" className="hover:text-primary transition-colors text-gray-300">Login</Link>
                 <Link 
                   to="/signup" 
-                  className="px-5 py-2 rounded-full bg-primary text-white font-semibold hover:bg-blue-600 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                  className="px-5 py-2 rounded-full bg-primary text-white font-semibold hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20"
                 >
                   Sign Up
                 </Link>
@@ -83,7 +83,7 @@ const Navbar = () => {
         <motion.div 
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="md:hidden glassmorphism mt-3 flex flex-col items-center py-6 gap-4 border-t border-white/10"
+          className="md:hidden glass-dark mt-3 flex flex-col items-center py-6 gap-4 border-t border-white/10"
         >
           <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-lg">Home</Link>
           <Link to="/display-tournaments" onClick={() => setMobileMenuOpen(false)} className="text-lg">Explore</Link>

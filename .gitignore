@@ -42,3 +42,5 @@ public/
 
 .env
 schedule.pdf
+
+!frontend/public/
