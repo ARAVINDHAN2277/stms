@@ -1,0 +1,108 @@
+import { Link, useNavigate } from 'react-router-dom';
+import { useContext, useState, useEffect } from 'react';
+import AuthContext from '../../context/AuthContext.jsx';
+import { Trophy, Menu, X } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const Navbar = () => {
+  const { user, setUser } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    navigate('/');
+  };
+
+  return (
+    <motion.nav 
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'glassmorphism py-3' : 'bg-transparent py-5'}`}
+    >
+      <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
+        <Link to="/" className="flex items-center gap-2 group">
+          <Trophy className="text-primary group-hover:text-secondary transition-colors" size={28} />
+          <span className="text-2xl font-heading font-bold tracking-wider text-white">STMS</span>
+        </Link>
+
+        {/* Desktop Menu */}
+        <div className="hidden md:flex items-center gap-8 font-medium">
+          <Link to="/" className="hover:text-primary transition-colors text-gray-300">Home</Link>
+          <Link to="/display-tournaments" className="hover:text-primary transition-colors text-gray-300">Explore</Link>
+          <Link to="/organise-tournament" className="hover:text-primary transition-colors text-gray-300">Organise</Link>
+          
+          <div className="flex items-center gap-4 ml-4">
+            {user ? (
+              <>
+                <Link 
+                  to={`/${user.role}-dashboard`}
+                  className="px-4 py-2 rounded-full border border-gray-600 hover:border-primary transition-colors text-sm"
+                >
+                  Dashboard
+                </Link>
+                <button 
+                  onClick={handleLogout}
+                  className="px-4 py-2 rounded-full bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-colors text-sm"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login" className="hover:text-primary transition-colors text-gray-300">Login</Link>
+                <Link 
+                  to="/signup" 
+                  className="px-5 py-2 rounded-full bg-primary text-white font-semibold hover:bg-blue-600 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.5)]"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Mobile Menu Toggle */}
+        <button className="md:hidden text-white" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+          {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <motion.div 
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          className="md:hidden glassmorphism mt-3 flex flex-col items-center py-6 gap-4 border-t border-white/10"
+        >
+          <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-lg">Home</Link>
+          <Link to="/display-tournaments" onClick={() => setMobileMenuOpen(false)} className="text-lg">Explore</Link>
+          <Link to="/organise-tournament" onClick={() => setMobileMenuOpen(false)} className="text-lg">Organise</Link>
+          {user ? (
+            <>
+              <Link to={`/${user.role}-dashboard`} onClick={() => setMobileMenuOpen(false)} className="text-primary">Dashboard</Link>
+              <button onClick={() => { handleLogout(); setMobileMenuOpen(false); }} className="text-red-500">Logout</button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+              <Link to="/signup" onClick={() => setMobileMenuOpen(false)} className="text-primary font-bold">Sign Up</Link>
+            </>
+          )}
+        </motion.div>
+      )}
+    </motion.nav>
+  );
+};
+
+export default Navbar;
