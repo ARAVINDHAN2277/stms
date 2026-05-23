@@ -10,6 +10,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import tournamentRoutes from "./routes/tournament.routes.js";
+import matchRoutes from "./routes/match.routes.js";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/tournaments", tournamentRoutes);
+app.use("/api/match", matchRoutes);
 
 const PORT = process.env.PORT || 5000;
 

@@ -123,3 +123,20 @@ function generateSchedulePDF(scheduleText, fileName = 'schedule.pdf') {
     console.log(`PDF saved to ${fileName}`);
   });
 }
+
+export const updateTournamentStatus = async (tournamentId, status) => {
+  return await prisma.tournament.update({
+    where: { id: tournamentId },
+    data: { status }
+  });
+};
+
+export const updateRegistrationStatus = async (registrationId, status, paymentStatus) => {
+  return await prisma.registration.update({
+    where: { id: registrationId },
+    data: {
+      status: status || undefined,
+      paymentStatus: paymentStatus || undefined
+    }
+  });
+};

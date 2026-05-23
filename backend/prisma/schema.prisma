@@ -19,6 +19,33 @@ enum SportType {
   Cricket
 }
 
+enum TournamentStatus {
+  DRAFT
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  LIVE
+  COMPLETED
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  POSTPONED
+  CANCELLED
+}
+
 model User {
   id             String         @id @default(uuid())
   username       String         @unique
@@ -45,6 +72,7 @@ model Tournament {
   organiser       User           @relation("OrganisedTournaments", fields: [organiserId], references: [id], onDelete: Cascade)
   registrations   Registration[]
   matches         Match[]
+  status          TournamentStatus @default(DRAFT)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
@@ -55,6 +83,8 @@ model Registration {
   tournamentId String
   user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   tournament   Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  status       RegistrationStatus @default(PENDING)
+  paymentStatus PaymentStatus     @default(UNPAID)
   createdAt    DateTime   @default(now())
 
   @@unique([userId, tournamentId])
@@ -73,8 +103,12 @@ model Match {
   winnerId       String?
   winner         User?      @relation("WonMatches", fields: [winnerId], references: [id], onDelete: SetNull)
   round          Int
+  status         MatchStatus @default(SCHEDULED)
   matchDate      DateTime?
+  matchTime      DateTime?
   venue          String?
+  venueName      String?
+  notes          String?
   travelDistance Float?
   createdAt      DateTime   @default(now())
   updatedAt      DateTime   @updatedAt

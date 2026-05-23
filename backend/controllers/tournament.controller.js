@@ -105,3 +105,31 @@ export const scheduleTournament = async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 };
+
+export const updateTournamentStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
+    }
+
+    const updatedTournament = await tournamentService.updateTournamentStatus(id, status);
+    res.json({ message: "Tournament status updated", tournament: updatedTournament });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating tournament status", error: err.message });
+  }
+};
+
+export const updateParticipantStatus = async (req, res) => {
+  try {
+    const { id, registrationId } = req.params;
+    const { status, paymentStatus } = req.body;
+
+    const updatedRegistration = await tournamentService.updateRegistrationStatus(registrationId, status, paymentStatus);
+    res.json({ message: "Participant status updated", registration: updatedRegistration });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating participant status", error: err.message });
+  }
+};
