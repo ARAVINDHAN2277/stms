@@ -14,7 +14,9 @@ const OrganiseTournament = () => {
     registrationFee: "",
     maxParticipants: "",
     venueName: "",
-    dates: "",
+    stateDistrict: "",
+    startDate: "",
+    endDate: "",
     deadline: ""
   });
 
@@ -49,8 +51,11 @@ const OrganiseTournament = () => {
           sportType: formData.sportType,
           registrationFee: parseFloat(formData.registrationFee),
           location: loc,
-          // Extra details will need schema additions later if we want them saved,
-          // but for now we satisfy the required fields for the UI wizard.
+          venueName: formData.venueName,
+          stateDistrict: formData.stateDistrict,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          deadline: formData.deadline
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -126,10 +131,14 @@ const OrganiseTournament = () => {
                   <option value="Basketball">Basketball</option>
                   <option value="Tennis">Tennis</option>
                   <option value="Cricket">Cricket</option>
+                  <option value="Volleyball">Volleyball</option>
+                  <option value="Badminton">Badminton</option>
+                  <option value="Hockey">Hockey</option>
+                  <option value="TableTennis">Table Tennis</option>
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-navy-dark mb-1">Registration Fee ($) *</label>
+                <label className="block text-sm font-medium text-navy-dark mb-1">Registration Fee (₹) *</label>
                 <input
                   type="number"
                   name="registrationFee"
@@ -156,16 +165,29 @@ const OrganiseTournament = () => {
 
         {step === 2 && (
           <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-            <div>
-              <label className="block text-sm font-medium text-navy-dark mb-1">Venue Name / District</label>
-              <input
-                type="text"
-                name="venueName"
-                value={formData.venueName}
-                onChange={handleChange}
-                placeholder="e.g. City Sports Complex"
-                className="w-full p-3 bg-warm-surface border border-warm-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div>
+                <label className="block text-sm font-medium text-navy-dark mb-1">Venue Name</label>
+                <input
+                  type="text"
+                  name="venueName"
+                  value={formData.venueName}
+                  onChange={handleChange}
+                  placeholder="e.g. City Sports Complex"
+                  className="w-full p-3 bg-warm-surface border border-warm-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-navy-dark mb-1">District, State</label>
+                <input
+                  type="text"
+                  name="stateDistrict"
+                  value={formData.stateDistrict}
+                  onChange={handleChange}
+                  placeholder="e.g. Chennai, Tamil Nadu"
+                  className="w-full p-3 bg-warm-surface border border-warm-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
+                />
+              </div>
             </div>
             
             <div className="p-4 rounded-xl border border-dashed border-primary/40 bg-primary/5 text-center space-y-3">
@@ -182,20 +204,26 @@ const OrganiseTournament = () => {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <div>
-                <label className="block text-sm font-medium text-navy-dark mb-1">Tournament Dates</label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" size={18} />
-                  <input
-                    type="text"
-                    name="dates"
-                    value={formData.dates}
-                    onChange={handleChange}
-                    placeholder="e.g. Aug 12 - Aug 15"
-                    className="w-full pl-10 p-3 bg-warm-surface border border-warm-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
-                  />
-                </div>
+                <label className="block text-sm font-medium text-navy-dark mb-1">Start Date</label>
+                <input
+                  type="date"
+                  name="startDate"
+                  value={formData.startDate}
+                  onChange={handleChange}
+                  className="w-full p-3 bg-warm-surface border border-warm-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-navy-dark mb-1">End Date</label>
+                <input
+                  type="date"
+                  name="endDate"
+                  value={formData.endDate}
+                  onChange={handleChange}
+                  className="w-full p-3 bg-warm-surface border border-warm-border rounded-xl focus:ring-2 focus:ring-primary/50 outline-none"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-navy-dark mb-1">Registration Deadline</label>
@@ -227,15 +255,21 @@ const OrganiseTournament = () => {
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-text-muted">Registration Fee</dt>
-                  <dd className="mt-1 text-base text-navy-dark font-medium">${formData.registrationFee || "0"}</dd>
+                  <dd className="mt-1 text-base text-navy-dark font-medium">₹{formData.registrationFee || "0"}</dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-text-muted">Venue</dt>
-                  <dd className="mt-1 text-base text-navy-dark font-medium">{formData.venueName || "TBD"}</dd>
+                  <dd className="mt-1 text-base text-navy-dark font-medium">
+                    {formData.venueName ? `${formData.venueName}${formData.stateDistrict ? `, ${formData.stateDistrict}` : ''}` : "TBD"}
+                  </dd>
                 </div>
                 <div>
                   <dt className="text-sm font-medium text-text-muted">Dates</dt>
-                  <dd className="mt-1 text-base text-navy-dark font-medium">{formData.dates || "TBD"}</dd>
+                  <dd className="mt-1 text-base text-navy-dark font-medium">
+                    {formData.startDate ? (
+                      formData.startDate === formData.endDate ? formData.startDate : `${formData.startDate} to ${formData.endDate || "TBD"}`
+                    ) : "TBD"}
+                  </dd>
                 </div>
               </dl>
             </div>

@@ -3,7 +3,7 @@ import { runScheduler } from '../RoundRobinScheduler.js';
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
 
-export const createTournament = async ({ tournamentName, sportType, registrationFee, location, organiserId }) => {
+export const createTournament = async ({ tournamentName, sportType, registrationFee, location, venueName, stateDistrict, startDate, endDate, deadline, organiserId }) => {
   const newTournament = await prisma.tournament.create({
     data: {
       tournamentName,
@@ -11,6 +11,11 @@ export const createTournament = async ({ tournamentName, sportType, registration
       registrationFee: Number(registrationFee),
       latitude: location.lat,
       longitude: location.lng,
+      venueName,
+      stateDistrict,
+      startDate,
+      endDate,
+      deadline,
       organiserId,
     }
   });
@@ -19,7 +24,29 @@ export const createTournament = async ({ tournamentName, sportType, registration
 
 export const getOrganiserTournaments = async (organiserId) => {
   return await prisma.tournament.findMany({
-    where: { organiserId }
+    where: { organiserId },
+    include: {
+      registrations: true
+    }
+  });
+};
+
+export const getTournamentById = async (tournamentId) => {
+  return await prisma.tournament.findUnique({
+    where: { id: tournamentId },
+    include: {
+      registrations: {
+        include: {
+          user: true
+        }
+      },
+      matches: {
+        include: {
+          homeTeam: true,
+          awayTeam: true
+        }
+      }
+    }
   });
 };
 
@@ -100,11 +127,34 @@ export const generateSchedule = async (tournamentId) => {
     throw new Error('No players registered');
   }
 
-  const schedulerText = runScheduler(playerNames);
+  const { scheduleText, schedule } = runScheduler(playerNames);
   const uniquePdfName = `schedule-${tournamentId}-${Date.now()}.pdf`;
-  generateSchedulePDF(schedulerText, uniquePdfName);
+  generateSchedulePDF(scheduleText, uniquePdfName);
 
-  return schedulerText;
+  // Map scheduler team names back to user IDs
+  const usernameToId = new Map(users.map(u => [u.username, u.id]));
+
+  // Create matches in DB
+  if (schedule && schedule.length > 0) {
+    const matchData = schedule.map(match => ({
+      tournamentId: tournamentId,
+      homeTeamId: usernameToId.get(match.getHomeTeamName()),
+      awayTeamId: usernameToId.get(match.getAwayTeamName()),
+      round: match.getRound(),
+      status: "SCHEDULED",
+      matchDate: match.getMatchDate(),
+      venueName: match.getVenue(),
+      travelDistance: match.getTravelDistance()
+    })).filter(m => m.homeTeamId && m.awayTeamId); // Only create if both players found
+
+    if (matchData.length > 0) {
+      await prisma.match.createMany({
+        data: matchData
+      });
+    }
+  }
+
+  return { scheduleText, pdfPath: uniquePdfName };
 };
 
 function generateSchedulePDF(scheduleText, fileName = 'schedule.pdf') {
@@ -138,5 +188,23 @@ export const updateRegistrationStatus = async (registrationId, status, paymentSt
       status: status || undefined,
       paymentStatus: paymentStatus || undefined
     }
+  });
+};
+
+export const updateMatchScore = async (matchId, homeTeamScore, awayTeamScore) => {
+  let status = "COMPLETED";
+  return await prisma.match.update({
+    where: { id: matchId },
+    data: {
+      homeTeamScore: parseInt(homeTeamScore),
+      awayTeamScore: parseInt(awayTeamScore),
+      status
+    }
+  });
+};
+
+export const deleteTournament = async (tournamentId) => {
+  return await prisma.tournament.delete({
+    where: { id: tournamentId }
   });
 };

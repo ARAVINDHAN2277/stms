@@ -470,11 +470,10 @@ class Location {
     const scheduler = new RoundRobinScheduler(
       teamNames, true, venues, teamLocations, tournamentStart, 7);
       
-    const schedule = scheduler.generateOptimizedSchedule(10000, 1000.0);
+    const schedule = scheduler.generateOptimizedSchedule(1000, 1000.0); // Reduced iterations for speed
     const scheduleText = scheduler.printSchedule(schedule);
-    console.log("hello")
     verifySchedule(schedule, scheduler);
-    return scheduleText
+    return { scheduleText, schedule };
   }
   
 export {

@@ -20,11 +20,14 @@ const OrganiserLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-    navigate('/');
+    if (window.confirm("Are you sure you want to log out?")) {
+      localStorage.removeItem('token');
+      setUser(null);
+      navigate('/');
+    }
   };
 
   const navItems = [
@@ -49,7 +52,8 @@ const OrganiserLayout = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2">
-          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 px-2">Organiser OS</span>
+          {console.log("OrganiserLayout rendered!")}
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 px-2">Command Center</span>
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
@@ -152,10 +156,46 @@ const OrganiserLayout = () => {
               <h2 className="text-2xl font-heading font-bold text-navy-dark">Welcome back, {user?.username}</h2>
               <p className="text-text-muted text-sm mt-1">Manage your tournaments and players efficiently.</p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg border border-primary/30">
-                {user?.username?.charAt(0).toUpperCase()}
-              </div>
+            <div className="relative">
+              <button 
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                className="flex items-center gap-2 hover:bg-warm-surface p-1 rounded-full transition-colors outline-none"
+              >
+                <div className="h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg border border-primary/30">
+                  {user?.username?.charAt(0).toUpperCase()}
+                </div>
+              </button>
+
+              {/* Profile Dropdown */}
+              <AnimatePresence>
+                {profileDropdownOpen && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-48 bg-white border border-warm-border rounded-xl shadow-lg overflow-hidden z-50"
+                  >
+                    <div className="px-4 py-3 border-b border-warm-border bg-warm-bg/50">
+                      <p className="text-sm font-medium text-navy-dark">{user?.username}</p>
+                      <p className="text-xs text-text-muted">{user?.email}</p>
+                    </div>
+                    <div className="p-1">
+                      <button 
+                        onClick={() => { setProfileDropdownOpen(false); /* Add profile route logic if needed */ }}
+                        className="w-full text-left px-3 py-2 text-sm text-navy-dark hover:bg-warm-surface hover:text-primary rounded-lg transition-colors"
+                      >
+                        Profile Settings
+                      </button>
+                      <button 
+                        onClick={() => { setProfileDropdownOpen(false); handleLogout(); }}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-1"
+                      >
+                        <LogOut size={16} /> Logout
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </header>
 

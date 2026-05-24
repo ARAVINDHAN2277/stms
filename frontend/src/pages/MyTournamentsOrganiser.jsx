@@ -80,11 +80,13 @@ const MyTournamentsOrganiser = () => {
                   </div>
                   <div className="flex items-center gap-3 text-text-muted text-sm">
                     <MapPin size={16} className="text-primary/70" />
-                    <span>Lat: {tournament.location?.lat?.toFixed(2)}</span>
+                    <span className="line-clamp-1">
+                      {[tournament.venueName, tournament.stateDistrict].filter(Boolean).join(', ') || 'Location TBD'}
+                    </span>
                   </div>
                   <div className="flex items-center gap-3 text-text-muted text-sm">
                     <Calendar size={16} className="text-primary/70" />
-                    <span>Fee: ${tournament.registrationFee}</span>
+                    <span>Fee: ₹{tournament.registrationFee}</span>
                   </div>
                 </div>
               </div>

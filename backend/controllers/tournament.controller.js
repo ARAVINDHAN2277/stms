@@ -2,7 +2,7 @@ import * as tournamentService from '../services/tournament.service.js';
 
 export const registerTournament = async (req, res) => {
   try {
-    const { tournamentName, sportType, registrationFee, location } = req.body;
+    const { tournamentName, sportType, registrationFee, location, venueName, stateDistrict, startDate, endDate, deadline } = req.body;
     const userId = req.user.id;
 
     if (!tournamentName || !sportType || registrationFee === undefined || !location || !location.lat || !location.lng) {
@@ -18,6 +18,11 @@ export const registerTournament = async (req, res) => {
       sportType,
       registrationFee,
       location,
+      venueName,
+      stateDistrict,
+      startDate,
+      endDate,
+      deadline,
       organiserId: userId
     });
 
@@ -45,6 +50,22 @@ export const getOrganiserTournaments = async (req, res) => {
       location: { lat: t.latitude, lng: t.longitude }
     }));
 
+    res.json(mapped);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getTournamentById = async (req, res) => {
+  try {
+    const tournament = await tournamentService.getTournamentById(req.params.id);
+    if (!tournament) return res.status(404).json({ message: "Tournament not found" });
+    
+    const mapped = {
+      ...tournament,
+      _id: tournament.id,
+      location: { lat: tournament.latitude, lng: tournament.longitude }
+    };
     res.json(mapped);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -131,5 +152,26 @@ export const updateParticipantStatus = async (req, res) => {
     res.json({ message: "Participant status updated", registration: updatedRegistration });
   } catch (err) {
     res.status(500).json({ message: "Error updating participant status", error: err.message });
+  }
+};
+
+export const updateMatchScore = async (req, res) => {
+  try {
+    const { matchId } = req.params;
+    const { homeTeamScore, awayTeamScore } = req.body;
+
+    const updatedMatch = await tournamentService.updateMatchScore(matchId, homeTeamScore, awayTeamScore);
+    res.json({ message: "Match score updated", match: updatedMatch });
+  } catch (err) {
+    res.status(500).json({ message: "Error updating match score", error: err.message });
+  }
+};
+
+export const deleteTournament = async (req, res) => {
+  try {
+    await tournamentService.deleteTournament(req.params.id);
+    res.json({ message: "Tournament deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Error deleting tournament", error: err.message });
   }
 };

@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
 
 if (!process.env.DATABASE_URL || !process.env.JWT_SECRET) {
   throw new Error("Missing environment variables! Check .env file.");

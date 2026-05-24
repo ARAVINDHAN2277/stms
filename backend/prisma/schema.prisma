@@ -17,6 +17,10 @@ enum SportType {
   Basketball
   Tennis
   Cricket
+  Volleyball
+  Badminton
+  Hockey
+  TableTennis
 }
 
 enum TournamentStatus {
@@ -68,6 +72,11 @@ model Tournament {
   registrationFee Float
   latitude        Float
   longitude       Float
+  venueName       String?
+  stateDistrict   String?
+  startDate       String?
+  endDate         String?
+  deadline        String?
   organiserId     String
   organiser       User           @relation("OrganisedTournaments", fields: [organiserId], references: [id], onDelete: Cascade)
   registrations   Registration[]

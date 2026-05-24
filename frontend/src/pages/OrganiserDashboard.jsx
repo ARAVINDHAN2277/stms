@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
-import { Trophy, Users, DollarSign, Activity, ChevronRight, Clock } from "lucide-react";
+import { Trophy, Users, Wallet, Activity, ChevronRight, Clock } from "lucide-react";
 import AuthContext from "../context/AuthContext.jsx";
 import axios from "axios";
 
@@ -17,7 +17,11 @@ const StatCard = ({ icon, title, value, subtitle, trend }) => (
     </div>
     <div className="mt-4 flex items-center justify-between text-sm">
       <span className="text-text-muted">{subtitle}</span>
-      {trend && <span className="text-green-500 font-medium">{trend}</span>}
+      {trend && (
+        <span className={`font-medium ${trend.includes('Caught') ? 'text-text-muted' : trend.includes('+') ? 'text-green-500' : 'text-primary'}`}>
+          {trend}
+        </span>
+      )}
     </div>
   </div>
 );
@@ -32,22 +36,61 @@ const OrganiserDashboard = () => {
   });
   const [recentActivity, setRecentActivity] = useState([]);
 
-  useEffect(() => {
-    // In a real scenario, this would fetch an aggregated stats endpoint
-    // For now, we mock some premium dashboard data to establish the UI structure
-    setStats({
-      activeTournaments: 3,
-      totalPlayers: 142,
-      revenue: 4500,
-      pendingApprovals: 12
-    });
+  const [loading, setLoading] = useState(true);
 
-    setRecentActivity([
-      { id: 1, action: "Registration Pending", details: "John Doe registered for Summer Smash", time: "2 hours ago" },
-      { id: 2, action: "Match Completed", details: "Team Alpha won against Team Beta (2-1)", time: "5 hours ago" },
-      { id: 3, action: "Tournament Live", details: "Winter Cup 2026 is now live", time: "1 day ago" },
-    ]);
-  }, []);
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`http://localhost:5000/api/tournaments/organiser/${user._id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const tournaments = res.data;
+        
+        // Calculate Stats
+        const active = tournaments.filter(t => t.status === "REGISTRATION_OPEN" || t.status === "LIVE").length;
+        const players = tournaments.reduce((acc, t) => acc + (t.registrations?.length || 0), 0);
+        const revenue = tournaments.reduce((acc, t) => acc + ((t.registrations?.length || 0) * (t.registrationFee || 0)), 0);
+        const pending = tournaments.reduce((acc, t) => acc + (t.registrations?.filter(r => r.status === "PENDING").length || 0), 0);
+        
+        setStats({
+          activeTournaments: active,
+          totalPlayers: players,
+          revenue: revenue,
+          pendingApprovals: pending
+        });
+
+        // Generate Recent Activity from newest registrations (simplified)
+        const allRegistrations = [];
+        tournaments.forEach(t => {
+          if (t.registrations) {
+            t.registrations.forEach(r => {
+              allRegistrations.push({
+                id: r.id,
+                action: "New Registration",
+                details: `A player registered for ${t.tournamentName}`,
+                time: "Recently" // Real implementation would use createdAt
+              });
+            });
+          }
+        });
+        
+        // Take top 3
+        setRecentActivity(allRegistrations.slice(0, 3));
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?._id) {
+      fetchDashboardData();
+    }
+  }, [user]);
+
+  if (loading) return <div className="p-8 text-center text-text-muted">Loading your dashboard...</div>;
 
   return (
     <div className="space-y-6">
@@ -57,27 +100,26 @@ const OrganiserDashboard = () => {
           icon={<Trophy size={24} />} 
           title="Active Tournaments" 
           value={stats.activeTournaments} 
-          subtitle="2 scheduled soon" 
+          subtitle={stats.activeTournaments === 1 ? "1 currently running" : `${stats.activeTournaments} currently running`}
         />
         <StatCard 
           icon={<Users size={24} />} 
           title="Total Players" 
           value={stats.totalPlayers} 
           subtitle="Across all tournaments" 
-          trend="+12% this month"
         />
         <StatCard 
-          icon={<DollarSign size={24} />} 
+          icon={<Wallet size={24} />} 
           title="Revenue" 
-          value={`$${stats.revenue}`} 
+          value={`₹${stats.revenue}`} 
           subtitle="Total entry fees collected" 
         />
         <StatCard 
           icon={<Activity size={24} />} 
           title="Pending Approvals" 
           value={stats.pendingApprovals} 
-          subtitle="Requires attention" 
-          trend="Action Needed"
+          subtitle={stats.pendingApprovals > 0 ? "Requires attention" : "All caught up"} 
+          trend={stats.pendingApprovals > 0 ? "Action Needed" : ""}
         />
       </div>
 
@@ -114,7 +156,7 @@ const OrganiserDashboard = () => {
         <div className="xl:col-span-2 bg-white rounded-2xl border border-warm-border shadow-sm p-6">
           <h3 className="text-lg font-heading font-bold text-navy-dark mb-4">Recent Activity</h3>
           <div className="space-y-4">
-            {recentActivity.map((activity) => (
+            {recentActivity.length > 0 ? recentActivity.map((activity) => (
               <div key={activity.id} className="flex gap-4 p-4 rounded-xl border border-warm-surface hover:border-warm-border transition-colors">
                 <div className="mt-1 h-8 w-8 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
                   <Clock size={16} />
@@ -127,7 +169,11 @@ const OrganiserDashboard = () => {
                   {activity.time}
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="text-center py-6">
+                <p className="text-text-muted">No recent activity found.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
