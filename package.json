@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "nodemon backend/server.js"
+    "dev": "nodemon backend/server.js",
+    "postinstall": "cd backend && npx prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -21,10 +22,10 @@
     "nodemailer": "^6.10.1",
     "nodemin": "^1.0.1",
     "pdfkit": "^0.17.0",
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "prisma": "5.22.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9",
-    "prisma": "5.22.0"
+    "nodemon": "^3.1.9"
   }
 }
