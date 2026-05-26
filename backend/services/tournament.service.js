@@ -1,6 +1,6 @@
 import prisma from '../utils/prismaClient.js';
-import { runScheduler } from '../RoundRobinScheduler.js';
-import { runKnockoutScheduler } from '../KnockoutScheduler.js';
+import { runScheduler } from '../utils/RoundRobinScheduler.js';
+import { runKnockoutScheduler } from '../utils/KnockoutScheduler.js';
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
 
@@ -171,7 +171,7 @@ export const generateSchedule = async (tournamentId, format) => {
     schedule = result.schedule;
   }
 
-  const uniquePdfName = `schedule-${tournamentId}-${Date.now()}.pdf`;
+  const uniquePdfName = `temp/schedule-${tournamentId}-${Date.now()}.pdf`;
   generateSchedulePDF(scheduleText, uniquePdfName);
 
   // Map scheduler team names back to user IDs
