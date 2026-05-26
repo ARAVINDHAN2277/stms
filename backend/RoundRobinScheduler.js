@@ -57,6 +57,7 @@ class Location {
     getHomeTeam() { return this.homeTeam; }
     getAwayTeam() { return this.awayTeam; }
     getRound() { return this.round; }
+    setRound(round) { this.round = round; }
     getHomeTeamName() { return this.homeTeamName; }
     getAwayTeamName() { return this.awayTeamName; }
     getVenue() { return this.venue; }
@@ -65,14 +66,22 @@ class Location {
   }
   
   class RoundRobinScheduler {
-    constructor(teamNames, includeReverseFixtures, venues, teamLocations, startDate, daysPerRound) {
+    constructor(teamNames, includeReverseFixtures, venues, teamLocations, startDate, endDate) {
       this.numTeams = teamNames.length;
       this.includeReverseFixtures = includeReverseFixtures;
       this.teamNames = new Map();
       this.venues = venues;
       this.teamLocations = teamLocations;
       this.startDate = startDate;
-      this.daysPerRound = daysPerRound;
+      this.endDate = endDate;
+      
+      // Calculate total round groups (concurrent match slots)
+      const totalTeams = teamNames.length + teamNames.length % 2;
+      this.numRoundGroups = totalTeams - 1;
+      
+      // Evenly distribute round groups across the date range
+      const diffMs = Math.max(0, endDate.getTime() - startDate.getTime());
+      this.msPerRound = this.numRoundGroups <= 1 ? 0 : diffMs / (this.numRoundGroups - 1);
       
       for (let i = 0; i < teamNames.length; i++) {
         this.teamNames.set(i + 1, teamNames[i]);
@@ -99,9 +108,11 @@ class Location {
       return awayLocation.distanceTo(homeLocation);
     }
     
-    getDateForRound(round) {
-      const result = new Date(this.startDate);
-      result.setDate(result.getDate() + (round - 1) * this.daysPerRound);
+    // roundGroup is 0-indexed (0 = first group of matches, last = final group)
+    getDateForRoundGroup(roundGroup) {
+      const result = new Date(this.startDate.getTime() + roundGroup * this.msPerRound);
+      // Clamp to endDate
+      if (result > this.endDate) return new Date(this.endDate);
       return result;
     }
     
@@ -217,70 +228,65 @@ class Location {
       return schedule.reduce((sum, match) => sum + match.getTravelDistance(), 0);
     }
     
-    // Generate initial schedule (used as starting point for optimization)
     generateInitialSchedule() {
-      const schedule = [];
+      // Step 1: Collect all pairings using round-robin rotation (no dates yet)
+      const pairings = [];
       const totalTeams = this.numTeams + this.numTeams % 2;
       const teams = Array(totalTeams).fill(0).map((_, i) => i < this.numTeams ? i + 1 : 0);
       
-      const numRounds = totalTeams - 1;
-      for (let round = 0; round < numRounds; round++) {
-        const roundDate = this.getDateForRound(round + 1);
+      const numRoundGroups = totalTeams - 1;
+      for (let roundGroup = 0; roundGroup < numRoundGroups; roundGroup++) {
         for (let i = 0; i < totalTeams / 2; i++) {
           const team1 = teams[i];
           const team2 = teams[totalTeams - 1 - i];
-          
           if (team1 !== 0 && team2 !== 0) {
-            if (i % 2 === 0) {
-              const distance = this.calculateTravelDistance(team1, team2);
-              schedule.push(new Match(
-                team1, 
-                team2, 
-                round + 1, 
-                this.getTeamName(team1), 
-                this.getTeamName(team2), 
-                this.getVenue(team1), 
-                roundDate, 
-                distance
-              ));
-            } else {
-              const distance = this.calculateTravelDistance(team2, team1);
-              schedule.push(new Match(
-                team2, 
-                team1, 
-                round + 1, 
-                this.getTeamName(team2), 
-                this.getTeamName(team1), 
-                this.getVenue(team2), 
-                roundDate, 
-                distance
-              ));
-            }
+            pairings.push({ team1, team2 });
           }
         }
-  
         this.rotateArray(teams);
       }
-    
-      if (this.includeReverseFixtures) {
-        const originalSize = schedule.length;
-        for (let i = 0; i < originalSize; i++) {
-          const match = schedule[i];
-          const reverseFixtureDate = this.getDateForRound(match.getRound() + numRounds);
-          const distance = this.calculateTravelDistance(match.getAwayTeam(), match.getHomeTeam());
-          schedule.push(new Match(
-            match.getAwayTeam(),
-            match.getHomeTeam(),
-            match.getRound() + numRounds,
-            match.getAwayTeamName(),
-            match.getHomeTeamName(),
-            this.getVenue(match.getAwayTeam()),
-            reverseFixtureDate,
-            distance
-          ));
-        }
-      }
       
+      // Step 2: Distribute pairings evenly across the date range
+      const totalMatches = pairings.length;
+      const diffMs = Math.max(0, this.endDate - this.startDate);
+      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24)); // inclusive day count
+
+      const schedule = pairings.map((pairing, index) => {
+        // Spread matches proportionally: floor(index * (diffDays+1) / totalMatches)
+        const dayOffset = diffDays === 0 ? 0 : Math.min(
+          Math.floor(index * (diffDays + 1) / totalMatches),
+          diffDays
+        );
+        const matchDate = new Date(this.startDate);
+        matchDate.setDate(matchDate.getDate() + dayOffset);
+
+        return new Match(
+          pairing.team1,
+          pairing.team2,
+          index + 1,
+          this.getTeamName(pairing.team1),
+          this.getTeamName(pairing.team2),
+          'Main Court',
+          matchDate,
+          0
+        );
+      });
+
+      // Append Final Match
+      const finalMatchDate = new Date(this.endDate);
+      const finalMatch = new Match(
+        null,
+        null,
+        schedule.length + 1,
+        'TBD',
+        'TBD',
+        'Main Court',
+        finalMatchDate,
+        0
+      );
+      finalMatch.roundName = "Final";
+      schedule.push(finalMatch);
+
       return schedule;
     }
     
@@ -444,35 +450,24 @@ class Location {
   }
   
   // Example usage
-  function runScheduler(playerNames) {
-    const teamNames = playerNames
+  function runScheduler(playerNames, startDateStr, endDateStr) {
+    const teamNames = playerNames;
     
+    // Parse tournament date bounds — fall back gracefully if missing
+    const tournamentStart = startDateStr ? new Date(startDateStr) : new Date();
+    const tournamentEnd = endDateStr
+      ? new Date(endDateStr)
+      : new Date(tournamentStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+
     const venues = new Map();
-    venues.set(1, "Venue 1");
-    venues.set(2, "Venue 2");
-    venues.set(3, "Venue 3");
-    venues.set(4, "Venue 4");
-    venues.set(5, "Venue 5");
-    venues.set(6, "Venue 6");
-    venues.set(7, "Venue 7");
-    
     const teamLocations = new Map();
-    teamLocations.set(1, new Location(12.9716, 77.5946, "Venue 1"));
-    teamLocations.set(2, new Location(13.0827, 80.2707, "Venue 2"));  
-    teamLocations.set(3, new Location(17.3850, 78.4867, "Venue 3")); 
-    teamLocations.set(4, new Location(28.7041, 77.1025, "Venue 4"));
-    teamLocations.set(5, new Location(19.0760, 72.8777, "Venue 5")); 
-    teamLocations.set(6, new Location(22.5726, 88.3639, "Venue 6")); 
-    teamLocations.set(7, new Location(18.5204, 73.8567, "Venue 7")); 
-    
-    const tournamentStart = new Date(2025, 2, 1); 
     
     const scheduler = new RoundRobinScheduler(
-      teamNames, true, venues, teamLocations, tournamentStart, 7);
+      teamNames, false, venues, teamLocations, tournamentStart, tournamentEnd);
       
-    const schedule = scheduler.generateOptimizedSchedule(1000, 1000.0); // Reduced iterations for speed
+    const schedule = scheduler.generateInitialSchedule();
     const scheduleText = scheduler.printSchedule(schedule);
-    verifySchedule(schedule, scheduler);
+    
     return { scheduleText, schedule };
   }
   

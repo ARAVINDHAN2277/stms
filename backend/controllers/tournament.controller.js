@@ -2,7 +2,7 @@ import * as tournamentService from '../services/tournament.service.js';
 
 export const registerTournament = async (req, res) => {
   try {
-    const { tournamentName, sportType, registrationFee, location, venueName, stateDistrict, startDate, endDate, deadline } = req.body;
+    const { tournamentName, sportType, registrationFee, maxParticipants, location, venueName, stateDistrict, startDate, endDate, deadline } = req.body;
     const userId = req.user.id;
 
     if (!tournamentName || !sportType || registrationFee === undefined || !location || !location.lat || !location.lng) {
@@ -17,6 +17,7 @@ export const registerTournament = async (req, res) => {
       tournamentName,
       sportType,
       registrationFee,
+      maxParticipants,
       location,
       venueName,
       stateDistrict,
@@ -41,7 +42,8 @@ export const registerTournament = async (req, res) => {
 
 export const getOrganiserTournaments = async (req, res) => {
   try {
-    const tournaments = await tournamentService.getOrganiserTournaments(req.params.organiserId);
+    const organiserId = req.user.id;
+    const tournaments = await tournamentService.getOrganiserTournaments(organiserId);
     
     // Map for frontend
     const mapped = tournaments.map(t => ({
@@ -50,6 +52,20 @@ export const getOrganiserTournaments = async (req, res) => {
       location: { lat: t.latitude, lng: t.longitude }
     }));
 
+    res.json(mapped);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const getActiveTournaments = async (req, res) => {
+  try {
+    const tournaments = await tournamentService.getActiveTournaments();
+    const mapped = tournaments.map(t => ({
+      ...t,
+      _id: t.id,
+      location: { lat: t.latitude, lng: t.longitude }
+    }));
     res.json(mapped);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -116,10 +132,32 @@ export const registerForTournament = async (req, res) => {
   }
 };
 
+export const getPlayerRegistrations = async (req, res) => {
+  try {
+    const { playerId } = req.params;
+    const registrations = await tournamentService.getPlayerRegistrations(playerId);
+    
+    // map tournament locations
+    const mapped = registrations.map(reg => ({
+      ...reg,
+      tournament: {
+        ...reg.tournament,
+        _id: reg.tournament.id,
+        location: { lat: reg.tournament.latitude, lng: reg.tournament.longitude }
+      }
+    }));
+    
+    res.json(mapped);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 export const scheduleTournament = async (req, res) => {
   try {
     const { id } = req.params;
-    const scheduler = await tournamentService.generateSchedule(id);
+    const { format } = req.body;
+    const scheduler = await tournamentService.generateSchedule(id, format);
     res.json(scheduler);
   } catch (err) {
     console.error(err);

@@ -2,21 +2,18 @@ import { useState, useContext } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import AuthContext from '../context/AuthContext.jsx';
 import { 
-  LayoutDashboard, 
-  Trophy, 
-  PlusCircle, 
-  Users, 
+  Activity, 
+  Search, 
   Swords, 
-  BarChart, 
-  Settings, 
   LogOut,
   Menu,
   X,
-  User
+  User,
+  LayoutDashboard
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const OrganiserLayout = () => {
+const PlayerLayout = () => {
   const { user, setUser } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
@@ -39,10 +36,10 @@ const OrganiserLayout = () => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/organiser-dashboard', icon: <LayoutDashboard size={20} /> },
-    { name: 'My Tournaments', path: '/organiser/tournaments', icon: <Trophy size={20} /> },
-    { name: 'Organise New', path: '/organise-tournament', icon: <PlusCircle size={20} /> },
-    { name: 'My Profile', path: '/organiser/profile', icon: <User size={20} /> },
+    { name: 'Dashboard', path: '/player-dashboard', icon: <LayoutDashboard size={20} /> },
+    { name: 'Discover Events', path: '/discover', icon: <Search size={20} /> },
+    { name: 'My Tournaments', path: '/my-tournaments', icon: <Swords size={20} /> },
+    { name: 'My Profile', path: '/player/profile', icon: <User size={20} /> },
   ];
 
   return (
@@ -57,10 +54,9 @@ const OrganiserLayout = () => {
         </div>
 
         <div className="flex-1 overflow-y-auto py-6 px-4 flex flex-col gap-2">
-          {console.log("OrganiserLayout rendered!")}
-          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 px-2">Command Center</span>
+          <span className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2 px-2">Player Hub</span>
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname.startsWith(item.path);
             return (
               <Link
                 key={item.name}
@@ -125,7 +121,7 @@ const OrganiserLayout = () => {
               </div>
               <div className="flex-1 overflow-y-auto py-4 px-2 flex flex-col gap-1">
                 {navItems.map((item) => {
-                  const isActive = location.pathname === item.path;
+                  const isActive = location.pathname.startsWith(item.path);
                   return (
                     <Link
                       key={item.name}
@@ -159,15 +155,20 @@ const OrganiserLayout = () => {
           <header className="hidden lg:flex items-center justify-between mb-8 pb-4 border-b border-warm-border/50">
             <div>
               <h2 className="text-2xl font-heading font-bold text-navy-dark">Welcome back, {user?.username}</h2>
-              <p className="text-text-muted text-sm mt-1">Manage your tournaments and players efficiently.</p>
+              <p className="text-text-muted text-sm mt-1">Here's your upcoming schedule and tournament statuses.</p>
             </div>
-            <div className="relative">
+            <div className="relative flex items-center gap-4">
+              {location.pathname !== '/discover' && (
+                <Link to="/discover" className="px-6 py-2 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover shadow-md transition-all gap-2 items-center flex">
+                  <Search size={18} /> Find Tournaments
+                </Link>
+              )}
               <button 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                 className="flex items-center gap-2 hover:bg-warm-surface p-1 rounded-full transition-colors outline-none"
               >
                 <div className="h-10 w-10 rounded-full bg-primary/20 text-primary flex items-center justify-center font-bold text-lg border border-primary/30">
-                  {(user?.username?.charAt(0) || 'O').toUpperCase()}
+                  {(user?.username?.charAt(0) || 'P').toUpperCase()}
                 </div>
               </button>
 
@@ -178,19 +179,13 @@ const OrganiserLayout = () => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-48 bg-white border border-warm-border rounded-xl shadow-lg overflow-hidden z-50"
+                    className="absolute right-0 top-12 mt-2 w-48 bg-white border border-warm-border rounded-xl shadow-lg overflow-hidden z-50"
                   >
                     <div className="px-4 py-3 border-b border-warm-border bg-warm-bg/50">
                       <p className="text-sm font-medium text-navy-dark">{user?.username}</p>
                       <p className="text-xs text-text-muted">{user?.email}</p>
                     </div>
                     <div className="p-1">
-                      <button 
-                        onClick={() => { setProfileDropdownOpen(false); /* Add profile route logic if needed */ }}
-                        className="w-full text-left px-3 py-2 text-sm text-navy-dark hover:bg-warm-surface hover:text-primary rounded-lg transition-colors"
-                      >
-                        Profile Settings
-                      </button>
                       <button 
                         onClick={handleLogoutClick}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-1"
@@ -254,4 +249,4 @@ const OrganiserLayout = () => {
   );
 };
 
-export default OrganiserLayout;
+export default PlayerLayout;

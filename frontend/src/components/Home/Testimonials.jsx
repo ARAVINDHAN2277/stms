@@ -32,18 +32,18 @@ const TestimonialCard = ({ quote, author, role, delay }) => {
 const Testimonials = () => {
   const testimonials = [
     {
-      quote: "TourneyGrid completely changed how we run our regional football leagues. The automated scheduling alone saved us weeks of manual work.",
-      author: "Marcus Johnson",
+      quote: "TourneyGrid has completely changed how we are running our district cricket leagues. The automated scheduling feature itself has saved us so much time and tension.",
+      author: "Rahul Sharma",
       role: "League Director"
     },
     {
-      quote: "As a competitive player, finding local tournaments used to be a hassle. Now, I just open the app and register instantly with my team.",
-      author: "Sarah Chen",
-      role: "Local Champion"
+      quote: "For players like us, finding good local tournaments was always a big headache. Now, I just open the app and register my team in two minutes. Very superb experience.",
+      author: "Priya Desai",
+      role: "State Level Player"
     },
     {
-      quote: "The interface is simple yet powerful. It brings a completely new level of professionalism to our local weekend sports.",
-      author: "David Alaba",
+      quote: "The interface is very simple but extremely powerful. It is bringing a proper professional feel to our weekend turf tournaments.",
+      author: "Arjun Reddy",
       role: "Tournament Organiser"
     }
   ];

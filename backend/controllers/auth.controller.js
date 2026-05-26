@@ -56,3 +56,46 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
   res.clearCookie("token").json("User logged out");
 };
+
+export const getMe = async (req, res) => {
+  try {
+    const user = await authService.getUserById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    
+    const frontendUser = {
+      ...user,
+      _id: user.id,
+    };
+    delete frontendUser.password;
+    res.json(frontendUser);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { phone, dateOfBirth, gender, city, skillLevel, organizationName } = req.body;
+    
+    const updatedUser = await authService.updateUser(userId, {
+      phone,
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+      gender,
+      city,
+      skillLevel,
+      organizationName,
+      profileCompleted: true
+    });
+    
+    const frontendUser = {
+      ...updatedUser,
+      _id: updatedUser.id,
+    };
+    delete frontendUser.password;
+    
+    res.json(frontendUser);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

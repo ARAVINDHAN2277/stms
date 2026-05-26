@@ -13,6 +13,19 @@ export const updateMatchScore = async (req, res) => {
       return res.status(400).json({ message: "Invalid away team score" });
     }
 
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+      include: { tournament: true }
+    });
+
+    if (!match) {
+      return res.status(404).json({ message: "Match not found" });
+    }
+
+    if (match.tournament.status !== "LIVE" && match.tournament.status !== "COMPLETED") {
+      return res.status(400).json({ message: "Cannot update scores unless the tournament is LIVE." });
+    }
+
     const updatedMatch = await prisma.match.update({
       where: { id: matchId },
       data: {
@@ -48,5 +61,30 @@ export const updateMatchSchedule = async (req, res) => {
     res.json({ message: "Match schedule updated successfully", match: updatedMatch });
   } catch (error) {
     res.status(500).json({ message: "Error updating match schedule", error: error.message });
+  }
+};
+
+export const getPlayerUpcomingMatches = async (req, res) => {
+  try {
+    const { playerId } = req.params;
+    const matches = await prisma.match.findMany({
+      where: {
+        OR: [
+          { homeTeamId: playerId },
+          { awayTeamId: playerId }
+        ],
+        status: { not: "COMPLETED" }
+      },
+      include: {
+        tournament: true,
+        homeTeam: true,
+        awayTeam: true
+      },
+      orderBy: { matchDate: 'asc' }
+    });
+    
+    res.json(matches);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching upcoming matches", error: error.message });
   }
 };

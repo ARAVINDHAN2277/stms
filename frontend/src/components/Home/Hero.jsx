@@ -1,8 +1,11 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Trophy } from 'lucide-react';
+import { useContext } from 'react';
+import AuthContext from '../../context/AuthContext.jsx';
 
 const Hero = () => {
+  const { user } = useContext(AuthContext);
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
       {/* Background with cinematic sports image and dark overlay */}
@@ -51,20 +54,28 @@ const Hero = () => {
           className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto"
         >
           <Link 
-            to="/display-tournaments"
-            className="group relative flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white font-bold rounded-xl overflow-hidden warm-shadow hover:warm-shadow-hover transition-all"
+            to="/explore"
+            className="group relative flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-primary-hover text-white font-bold rounded-xl overflow-hidden shadow-[0_0_40px_rgba(255,107,53,0.3)] hover:shadow-[0_0_60px_rgba(255,107,53,0.5)] transition-all duration-300 hover:-translate-y-1"
           >
-            <span className="relative z-10">Explore Tournaments</span>
+            <span className="relative z-10 text-lg">Explore Tournaments</span>
             <ArrowRight size={20} className="relative z-10 group-hover:translate-x-1 transition-transform" />
-            <div className="absolute inset-0 h-full w-0 bg-primary-hover transition-all duration-300 ease-out group-hover:w-full z-0" />
           </Link>
           
-          <Link 
-            to="/organise-tournament"
-            className="group flex items-center justify-center gap-2 px-8 py-4 glass-dark text-white font-bold rounded-xl hover:bg-white/10 hover:border-white/30 transition-all"
-          >
-            Organise Tournament
-          </Link>
+          {user ? (
+            <Link 
+              to={`/${user.role}-dashboard`}
+              className="group flex items-center justify-center gap-2 px-8 py-4 glass-dark text-white font-bold text-lg rounded-xl hover:bg-white/10 border border-white/20 hover:border-white/40 transition-all duration-300 hover:-translate-y-1 shadow-lg backdrop-blur-md"
+            >
+              Go to Dashboard
+            </Link>
+          ) : (
+            <Link 
+              to="/organise-tournament"
+              className="group flex items-center justify-center gap-2 px-8 py-4 glass-dark text-white font-bold text-lg rounded-xl hover:bg-white/10 border border-white/20 hover:border-white/40 transition-all duration-300 hover:-translate-y-1 shadow-lg backdrop-blur-md"
+            >
+              Organise Tournament
+            </Link>
+          )}
         </motion.div>
       </div>
       

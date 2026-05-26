@@ -1,7 +1,11 @@
 import express from "express";
 import dotenv from "dotenv";
 import path from "path";
-dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 if (!process.env.DATABASE_URL || !process.env.JWT_SECRET) {
   throw new Error("Missing environment variables! Check .env file.");
@@ -17,7 +21,7 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(cors({ credentials: true, origin: process.env.FRONTEND_URL || "http://localhost:5173" }));
 app.use(cookieParser());
 
 // Routes

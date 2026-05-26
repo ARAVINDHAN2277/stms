@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useContext, useState, useEffect } from 'react';
 import AuthContext from '../../context/AuthContext.jsx';
 import { Trophy, Menu, X } from 'lucide-react';
@@ -7,16 +7,28 @@ import { motion } from 'framer-motion';
 const Navbar = () => {
   const { user, setUser } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
+  const [isScrolled, setIsScrolled] = useState(!isHomePage);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Initialize and handle scroll state
   useEffect(() => {
+    if (!isHomePage) {
+      setIsScrolled(true);
+      return;
+    }
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+
+    // Initialize on mount
+    handleScroll();
+
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -28,7 +40,7 @@ const Navbar = () => {
     <motion.nav 
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'glass-dark py-3' : 'bg-transparent py-5'}`}
+      className={`fixed w-full z-50 transition-all duration-300 ${isScrolled ? 'bg-navy-dark shadow-md py-3' : 'bg-transparent py-5'}`}
     >
       <div className="container mx-auto px-6 lg:px-12 flex justify-between items-center">
         <Link to="/" className="flex items-center gap-3 group">
@@ -39,7 +51,7 @@ const Navbar = () => {
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8 font-medium">
           <Link to="/" className="hover:text-primary transition-colors text-gray-300">Home</Link>
-          <Link to="/display-tournaments" className="hover:text-primary transition-colors text-gray-300">Explore</Link>
+          <Link to="/explore" className="hover:text-primary transition-colors text-gray-300">Explore</Link>
           <Link to="/organise-tournament" className="hover:text-primary transition-colors text-gray-300">Organise</Link>
           
           <div className="flex items-center gap-4 ml-4">
@@ -47,7 +59,7 @@ const Navbar = () => {
               <>
                 <Link 
                   to={`/${user.role}-dashboard`}
-                  className="px-4 py-2 rounded-full border border-gray-600 hover:border-primary transition-colors text-sm"
+                  className="px-5 py-2 rounded-full bg-primary text-white font-bold hover:bg-primary-hover transition-colors shadow-lg shadow-primary/20 text-sm"
                 >
                   Dashboard
                 </Link>
@@ -86,7 +98,7 @@ const Navbar = () => {
           className="md:hidden glass-dark mt-3 flex flex-col items-center py-6 gap-4 border-t border-white/10"
         >
           <Link to="/" onClick={() => setMobileMenuOpen(false)} className="text-lg">Home</Link>
-          <Link to="/display-tournaments" onClick={() => setMobileMenuOpen(false)} className="text-lg">Explore</Link>
+          <Link to="/explore" onClick={() => setMobileMenuOpen(false)} className="text-lg">Explore</Link>
           <Link to="/organise-tournament" onClick={() => setMobileMenuOpen(false)} className="text-lg">Organise</Link>
           {user ? (
             <>

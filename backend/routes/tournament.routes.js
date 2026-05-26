@@ -6,12 +6,14 @@ import * as tournamentController from "../controllers/tournament.controller.js";
 const router = express.Router();
 
 router.post("/register", authMiddleware, requireOrganiser, tournamentController.registerTournament);
-router.get("/organiser/:organiserId", authMiddleware, requireOrganiser, tournamentController.getOrganiserTournaments);
+router.get("/organiser", authMiddleware, requireOrganiser, tournamentController.getOrganiserTournaments);
 router.get("/nearby", authMiddleware, tournamentController.getNearbyTournaments);
+router.get("/discover", tournamentController.getActiveTournaments);
 router.get("/:id", authMiddleware, tournamentController.getTournamentById);
 
-// Player registering for tournament
+// Player endpoints
 router.patch("/:id/register", authMiddleware, tournamentController.registerForTournament);
+router.get("/player/:playerId/registrations", authMiddleware, tournamentController.getPlayerRegistrations);
 
 // Organiser managing tournament
 router.patch("/:id/status", authMiddleware, requireOrganiser, requireTournamentOwnership, tournamentController.updateTournamentStatus);

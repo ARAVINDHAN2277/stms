@@ -9,4 +9,7 @@ const router = express.Router();
 router.patch("/:matchId/score", authMiddleware, requireOrganiser, matchController.updateMatchScore);
 router.patch("/:matchId/schedule", authMiddleware, requireOrganiser, matchController.updateMatchSchedule);
 
+// Player endpoints
+router.get("/player/:playerId/upcoming", authMiddleware, matchController.getPlayerUpcomingMatches);
+
 export default router;

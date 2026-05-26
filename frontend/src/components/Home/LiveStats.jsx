@@ -60,10 +60,10 @@ const StatCard = ({ icon: Icon, title, value, delay }) => {
 
 const LiveStats = () => {
   const stats = [
-    { icon: Trophy, title: "Tournaments Hosted", value: 1240 },
-    { icon: Users, title: "Active Players", value: 45800 },
-    { icon: ShieldCheck, title: "Organisers", value: 850 },
-    { icon: Swords, title: "Matches Scheduled", value: 15600 }
+    { icon: Trophy, title: "Tournaments Hosted", value: 120 },
+    { icon: Users, title: "Active Players", value: 450 },
+    { icon: ShieldCheck, title: "Organisers", value: 85 },
+    { icon: Swords, title: "Matches Scheduled", value: 360 }
   ];
 
   return (

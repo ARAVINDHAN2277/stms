@@ -29,3 +29,14 @@ export const loginUser = async ({ email, password }) => {
 
   return user;
 };
+
+export const getUserById = async (id) => {
+  return await prisma.user.findUnique({ where: { id } });
+};
+
+export const updateUser = async (id, data) => {
+  return await prisma.user.update({
+    where: { id },
+    data
+  });
+};

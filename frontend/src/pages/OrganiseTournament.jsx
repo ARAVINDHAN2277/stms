@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Check, MapPin, Trophy, Calendar, CheckCircle, ArrowRight, ArrowLeft } from "lucide-react";
+import { Check, MapPin, Trophy, Calendar, CheckCircle, ArrowRight, ArrowLeft, AlertTriangle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
 const OrganiseTournament = () => {
@@ -20,6 +21,9 @@ const OrganiseTournament = () => {
     deadline: ""
   });
 
+  const [modalState, setModalState] = useState({ isOpen: false, title: "", message: "", type: "confirm" });
+  const [isPublishing, setIsPublishing] = useState(false);
+
   const selectedLocation = locationState?.location || null;
 
   const handleChange = (e) => {
@@ -33,11 +37,27 @@ const OrganiseTournament = () => {
     navigate("/select-location?type=organiser");
   };
 
-  const handlePublish = async () => {
+  const handlePublishClick = () => {
     if (!formData.tournamentName || !formData.sportType || !formData.registrationFee) {
-      alert("Please fill in the required core fields.");
+      setModalState({
+        isOpen: true,
+        title: "Missing Fields",
+        message: "Please fill in all the required core fields before publishing.",
+        type: "error"
+      });
       return;
     }
+
+    setModalState({
+      isOpen: true,
+      title: "Publish Tournament?",
+      message: `Are you ready to publish "${formData.tournamentName}"? Once published, players will be able to see it in the Discover section.`,
+      type: "confirm"
+    });
+  };
+
+  const executePublish = async () => {
+    setIsPublishing(true);
 
     // Default location if they didn't pick from maps
     const loc = selectedLocation || { lat: 28.6139, lng: 77.2090 };
@@ -45,11 +65,12 @@ const OrganiseTournament = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.post(
-        "http://localhost:5000/api/tournaments/register",
+        "/api/tournaments/register",
         {
           tournamentName: formData.tournamentName,
           sportType: formData.sportType,
           registrationFee: parseFloat(formData.registrationFee),
+          maxParticipants: formData.maxParticipants ? parseInt(formData.maxParticipants) : null,
           location: loc,
           venueName: formData.venueName,
           stateDistrict: formData.stateDistrict,
@@ -60,11 +81,27 @@ const OrganiseTournament = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
   
-      alert("Tournament published successfully!");
-      navigate("/organiser-dashboard");
+      setModalState({
+        isOpen: true,
+        title: "Success!",
+        message: "Your tournament has been published successfully. You can manage it from your Dashboard.",
+        type: "success"
+      });
+      
+      // Delay navigation slightly so user sees the success modal
+      setTimeout(() => {
+        navigate("/organiser/tournaments");
+      }, 2000);
+      
     } catch (error) {
       console.error(error);
-      alert("Failed to publish tournament.");
+      setIsPublishing(false);
+      setModalState({
+        isOpen: true,
+        title: "Error",
+        message: "Failed to publish tournament. Please try again.",
+        type: "error"
+      });
     }
   };
 
@@ -299,13 +336,86 @@ const OrganiseTournament = () => {
           </button>
         ) : (
           <button
-            onClick={handlePublish}
-            className="flex items-center gap-2 px-8 py-3 bg-navy-dark text-white rounded-xl font-medium hover:bg-navy-surface shadow-md shadow-navy-dark/20 transition-all"
+            onClick={handlePublishClick}
+            disabled={isPublishing}
+            className={`flex items-center gap-2 px-8 py-3 bg-navy-dark text-white rounded-xl font-medium shadow-md shadow-navy-dark/20 transition-all ${isPublishing ? 'opacity-70 cursor-not-allowed' : 'hover:bg-navy-surface'}`}
           >
-            Publish Tournament <CheckCircle size={18} />
+            {isPublishing ? 'Publishing...' : 'Publish Tournament'} <CheckCircle size={18} />
           </button>
         )}
       </div>
+
+      {/* Custom Modal */}
+      <AnimatePresence>
+        {modalState.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-navy-dark/40 backdrop-blur-sm"
+              onClick={() => modalState.type !== 'success' && setModalState({ ...modalState, isOpen: false })}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-2xl shadow-xl w-full max-w-md relative z-10 overflow-hidden border border-warm-border"
+            >
+              <div className="p-6 text-center">
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+                  modalState.type === 'error' ? 'bg-red-50 text-red-500' :
+                  modalState.type === 'success' ? 'bg-green-50 text-green-500' :
+                  'bg-primary/10 text-primary'
+                }`}>
+                  {modalState.type === 'error' ? <AlertTriangle size={32} /> :
+                   modalState.type === 'success' ? <CheckCircle size={32} /> :
+                   <Trophy size={32} />}
+                </div>
+                
+                <h3 className="text-2xl font-heading font-black text-navy-dark mb-2">{modalState.title}</h3>
+                <p className="text-text-muted mb-8">{modalState.message}</p>
+                
+                <div className="flex gap-3 justify-center">
+                  {modalState.type === 'confirm' ? (
+                    <>
+                      <button 
+                        onClick={() => setModalState({ ...modalState, isOpen: false })}
+                        className="flex-1 px-4 py-2 rounded-xl font-bold text-text-muted hover:bg-warm-surface transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setModalState({ ...modalState, isOpen: false });
+                          executePublish();
+                        }}
+                        className="flex-1 px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-xl font-bold transition-colors shadow-sm"
+                      >
+                        Yes, Publish
+                      </button>
+                    </>
+                  ) : modalState.type === 'error' ? (
+                    <button 
+                      onClick={() => setModalState({ ...modalState, isOpen: false })}
+                      className="w-full px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold transition-colors shadow-sm"
+                    >
+                      Okay
+                    </button>
+                  ) : (
+                    <button 
+                      className="w-full px-4 py-2 bg-green-500 text-white rounded-xl font-bold shadow-sm opacity-70 cursor-not-allowed"
+                      disabled
+                    >
+                      Redirecting...
+                    </button>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
